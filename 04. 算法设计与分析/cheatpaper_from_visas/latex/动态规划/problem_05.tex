@@ -1,0 +1,49 @@
+\section*{5. 字符串分词（最大化质量和）}
+
+给定字符串$y = y_1y_2\ldots y_n$，将其切分为若干连续子串（每个子串为合法词汇）。函数$quality(x)$返回词汇$x$的质量，求使总质量最大的分词方案。
+
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[i]$表示前$i$个字符的最大分词质量和
+    \item \textbf{转移方程}：$$dp[i] = \max_{0 \le j < i} \{dp[j] + quality(y[j+1..i])\}$$
+    \item \textbf{边界条件}：$dp[0] = 0$（空字符串质量为0）
+    \item \textbf{计算顺序}：$i$从$1$到$n$递增
+    \item \textbf{时间复杂度}：$O(n^2)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int maxQualitySegmentation(string y, function<int(string)> quality) {
+    int n = y.length();
+    vector<int> dp(n + 1, INT_MIN / 2);  // 避免溢出
+    dp[0] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        // 枚举所有切分点j
+        for (int j = 0; j < i; j++) {
+            string sub = y.substr(j, i - j);
+            int q = quality(sub);
+            dp[i] = max(dp[i], dp[j] + q);
+        }
+    }
+
+    return dp[n];
+}
+
+// 示例：使用哈希表预存词汇质量
+unordered_map<string, int> dictQuality = {
+    {"a", 1}, {"ab", 3}, {"abc", 4},
+    {"b", 1}, {"bc", 2}, {"c", 1}
+};
+
+int solve(string y) {
+    return maxQualitySegmentation(y, [](string s) {
+        return dictQuality.count(s) ? dictQuality[s] : INT_MIN / 2;
+    });
+}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 建一维数组，dp[i]表示前i个字符切分后的最大质量
+    \item 从前往后：尝试让最后一段从j+1到i，看是否是词典里的词
+    \item 如果是词，就用"前j个字符的最大质量"加上"这个词的质量"
+    \item 最终dp[n]即为答案
+\end{enumerate}

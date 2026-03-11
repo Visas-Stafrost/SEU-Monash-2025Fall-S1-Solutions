@@ -1,0 +1,65 @@
+\section*{14. 天际轮廓问题}
+
+给定n座建筑物，每个建筑物用三元组(Li,Ri,Hi)表示（Li为左下x坐标，Ri为右下x坐标，Hi为高度），设计O(nlogn)算法求出这n座建筑物的天际轮廓。
+
+\begin{itemize}
+    \item \textbf{天际轮廓表示}：用高度变化的关键点序列表示，如单个建筑物的轮廓为[(Li,0),(Li,Hi),(Ri,Hi),(Ri,0)]
+    \item \textbf{分治分解}：将建筑物集均分为左右两个子集，递归求得左右
+    \item \textbf{双指针合并}：用双指针i、j分别遍历左右天际线，按x坐标升序合并，同时维护当前左右高度hL、hR，取max(hL,hR)作为合并后当前高度
+    \item \textbf{关键点记录}：当当前max(hL,hR)与上次记录的高度不同时，记录新的关键点(x, max(hL,hR))
+    \item \textbf{时间复杂度}$T(n)=2T(n/2)+O(n)$，得$O(n\log n)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Point {
+    int x, height;
+    bool isStart;
+};
+vector<Point> mergeSkylines(vector<Point>& left, vector<Point>& right) {
+    vector<Point> result;
+    int i = 0, j = 0;
+    int hL = 0, hR = 0, currH = 0;
+    while (i < left.size() && j < right.size()) {
+        int x;
+        if (left[i].x < right[j].x ||
+            (left[i].x == right[j].x && left[i].height >= right[j].height)) {
+            hL = left[i].height;
+            x = left[i].x;
+            i++;
+        } else {
+            hR = right[j].height;
+            x = right[j].x;
+            j++;}}
+        int newH = max(hL, hR);
+        if (result.empty() || newH != currH) {
+            result.push_back({x, newH});
+            currH = newH;}}
+    while (i < left.size()) {
+        if (left[i].height != currH) {
+            result.push_back(left[i]);
+            currH = left[i].height;}}
+        i++;}
+    while (j < right.size()) {
+        if (right[j].height != currH) {
+            result.push_back(right[j]);
+            currH = right[j].height;}}
+        j++;}
+    return result;}
+vector<Point> getSkyline(vector<vector<int>>& buildings, int low, int high) {
+    if (low == high) {
+        return {{buildings[low][0], buildings[low][2]},
+                {buildings[low][1], 0}};}}
+    int mid = (low + high) / 2;
+    auto left = getSkyline(buildings, low, mid);
+    auto right = getSkyline(buildings, mid + 1, high);
+    return mergeSkylines(left, right);}}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 如果只有一个建筑，天际线就是它的4个顶点
+    \item 多个建筑时，从中间分成左右两半，递归求各自的天际线
+    \item 用双指针遍历两条天际线，x坐标小的先处理
+    \item 维护当前左右天际线的高度，取最大值为合并后当前高度
+    \item 只要当前最大高度和上次记录不一样，就记录新的关键点
+    \item 重复直到处理完所有关键点，最终得到的就是完整天际线
+\end{enumerate}

@@ -1,0 +1,53 @@
+\section*{3. 序列划分最小化最大值和}
+
+给定长度为N的整数序列$(a_1, a_2, \ldots, a_n)$，将其划分为若干连续子序列，每个子序列的和$\le B$。求使所有子序列"最大值"之和最小的划分方案。
+
+
+
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[i]$表示前$i$个元素的最小最大值和
+    \item \textbf{转移方程}：$$dp[i] = \min_{0 \le j < i, \text{sum}(a_{j+1..i}) \le B} \{dp[j] + \max(a_{j+1..i})\}$$
+    \item \textbf{优化技巧}：前缀和$O(1)$计算子序列和，反向遍历$j$时动态更新$\max$值
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int minMaxSumPartition(vector<int>& a, int B) {
+    int n = a.size();
+
+    // 前缀和
+    vector<int> sum(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        sum[i] = sum[i-1] + a[i-1];
+    }
+
+    // DP初始化
+    const int INF = 1e9;
+    vector<int> dp(n + 1, INF);
+    dp[0] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        int currentMax = 0;
+
+        // 反向遍历，提前终止
+        for (int j = i - 1; j >= 0; j--) {
+            currentMax = max(currentMax, a[j]);
+            int subSum = sum[i] - sum[j];
+
+            if (subSum > B) break;  // 提前终止
+
+            dp[i] = min(dp[i], dp[j] + currentMax);
+        }
+    }
+
+    return dp[n];
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 建一维数组，dp[i]表示前i个元素划分后的最小代价
+    \item 从前往后计算：尝试让最后一段从j+1到i
+    \item 只要和不超过B，就比较"dp[j]加这段最大值"
+    \item 一旦超过B就停止左移
+\end{enumerate}
+

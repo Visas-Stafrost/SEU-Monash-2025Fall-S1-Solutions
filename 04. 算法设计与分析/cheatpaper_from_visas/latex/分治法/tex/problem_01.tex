@@ -1,0 +1,52 @@
+\section*{1. 寻找凸包（Graham扫描法）}
+
+给定平面上的点集Q，使用Graham扫描法求Q的凸包（凸包定义：包含所有点的最小凸多边形，点或在多边形上或在内部），要求展示算法的完整步骤。
+
+\begin{itemize}
+    \item \textbf{基准点选择}：找y坐标最小的点p0（y相同时取x最小），保证p0必在凸包上
+    \item \textbf{极角排序}：其余点按相对p0的极角从小到大排序，共线点按距离由近及远，用叉积判断避免角度计算
+    \item \textbf{栈维护凸性}：从第3个点开始扫描，若新点与栈顶两点不构成左转（叉积$\le 0$）则弹出栈顶，直至构成左转或栈只剩1个点
+    \item \textbf{时间复杂度}：找基准点O(n)，极角排序O(nlogn)，扫描O(n)，总计O(nlogn)
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int cross(Point p0, Point p1, Point p2) {
+    return (p1.x - p0.x) * (p2.y - p0.y) -
+           (p1.y - p0.y) * (p2.x - p0.x);}
+int dist2(Point p1, Point p2) {
+    return (p1.x - p2.x) * (p1.x - p2.x) +
+           (p1.y - p2.y) * (p1.y - p2.y);}
+bool compare(Point p1, Point p2) {
+    int c = cross(p0, p1, p2);
+    if (c == 0) return dist2(p0, p1) < dist2(p0, p2);
+    return c > 0;}
+vector<Point> grahamScan(vector<Point>& points) {
+    int n = points.size();
+    int p0_idx = 0;
+    for (int i = 1; i < n; i++) {
+        if (points[i].y < points[p0_idx].y ||
+            (points[i].y == points[p0_idx].y &&
+             points[i].x < points[p0_idx].x))
+            p0_idx = i;}
+    swap(points[0], points[p0_idx]);
+    p0 = points[0];
+    sort(points.begin() + 1, points.end(), compare);
+    vector<Point> S;
+    S.push_back(points[0]);
+    S.push_back(points[1]);
+    for (int i = 2; i < n; i++) {
+        while (S.size() >= 2 &&
+               cross(S[S.size()-2], S.back(), points[i]) <= 0) {
+            S.pop_back();}
+        S.push_back(points[i]);}
+    return S;}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 扫描点集找到y最小的点作为p0（有多个时取最左边的），把它交换到数组首位
+    \item 从第二个点开始，按"相对p0的极角"排序：用叉积判断，共线时离p0近的排前面
+    \item 新建一个栈，先把p0和排序后的第一个点入栈
+    \item 从第三个点开始，检查栈顶两个点加上当前点是否"左转"：若不是（右转或共线）就弹出栈顶，重复检查直到满足左转或栈只剩一个点
+    \item 把当前点压入栈，继续处理下一个点
+    \item 全部处理完后，栈里剩下的点按顺序连起来就是凸包
+\end{enumerate}

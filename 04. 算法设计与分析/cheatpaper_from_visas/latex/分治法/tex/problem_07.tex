@@ -1,0 +1,37 @@
+\section*{7. 折半搜索（查找失败案例）}
+给定有序数组A，使用折半搜索算法查找不存在的目标元素，重点关注查找失败时的边界调整及终止条件判断。
+\begin{itemize}
+    \item \textbf{与成功案例的区别}：算法流程完全一致，区别在于最终触发low>high的终止条件
+    \item \textbf{关键观察}：每次比较后缩小搜索范围，当low>high时说明搜索范围为空，目标不存在
+    \item \textbf{边界动态}：low和high逐步靠近，最终low=high+1，表示没有元素可查
+    \item \textbf{返回值}：失败时返回-1（或其他约定值表示未找到）
+    \item \textbf{时间复杂度}：最坏情况需完全排除所有元素，O(log n)
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+int binarySearchRecursive(vector<int>& A, int target, int low, int high) {
+    if (low > high) {
+        return -1;}}
+    int mid = (low + high) / 2;
+    if (A[mid] == target) {
+        return mid;
+    } else if (A[mid] < target) {
+        return binarySearchRecursive(A, target, mid + 1, high);
+    } else {
+        return binarySearchRecursive(A, target, low, mid - 1);}}}
+int binarySearch(vector<int>& A, int target) {
+    int low = 0, high = A.size() - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (A[mid] == target) return mid;
+        else if (A[mid] < target) low = mid + 1;
+        else high = mid - 1;}}
+    return -1;}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 初始化low和high，确定搜索范围
+    \item 每次取中点mid，比较目标值和A[mid]
+    \item 根据比较结果调整low或high，缩小搜索范围
+    \item 当low>high时，说明已经把所有可能的位置都查过了，没找到
+    \item 返回-1表示查找失败
+\end{enumerate}

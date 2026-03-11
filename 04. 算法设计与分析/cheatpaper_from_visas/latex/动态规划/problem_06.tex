@@ -1,0 +1,56 @@
+\section*{6. 带权活动选择问题}
+
+给定$n$个活动，每个活动$a_i = (s_i, f_i, v_i)$，其中$s_i$为开始时间，$f_i$为结束时间，$v_i$为权重。选择若干不重叠的活动，使权重和最大。
+
+\begin{itemize}
+    \item \textbf{预处理}：按结束时间$f_i$升序排序
+    \item \textbf{前驱查找}：$prev[i]$表示最后一个结束时间$\le s_i$的活动（二分查找）
+    \item \textbf{状态定义}：$dp[i]$表示前$i$个活动的最大权重和
+    \item \textbf{转移方程}：$$dp[i] = \max(dp[i-1], dp[prev[i]] + v_i)$$
+    \item \textbf{时间复杂度}：$O(n \log n)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Activity {
+    int s, f, v;  // 开始时间，结束时间，权重
+};
+
+int weightedActivitySelection(vector<Activity>& acts) {
+    int n = acts.size();
+
+    // 按结束时间排序
+    sort(acts.begin(), acts.end(),
+         [](const Activity& a, const Activity& b) {
+             return a.f < b.f;
+         });
+
+    // 预处理prev数组（二分查找）
+    vector<int> prev(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        int l = 0, r = i - 1;
+        while (l < r) {
+            int mid = (l + r + 1) / 2;
+            if (acts[mid-1].f <= acts[i-1].s)
+                l = mid;
+            else
+                r = mid - 1;
+        }
+        prev[i] = l;
+    }
+
+    // DP
+    vector<int> dp(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        dp[i] = max(dp[i-1], dp[prev[i]] + acts[i-1].v);
+    }
+
+    return dp[n];
+}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 将所有活动按结束时间从小到大排序
+    \item 用二分查找找出每个活动"最后一个不与它冲突的活动"
+    \item 建一维数组，dp[i]表示前i个活动的最大权重
+    \item 比较"不选它"和"选它"（dp[不冲突的]加权重），取较大值
+\end{enumerate}

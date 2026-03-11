@@ -1,0 +1,33 @@
+\section*{10. 快速排序}
+给定数组A，使用快速排序算法对其进行升序排序，要求展示Partition过程及完整的递归排序步骤。
+\begin{itemize}
+    \item \textbf{Partition过程}：选择基准元素pivot（常选首元素），维护指针p指向小于pivot的区域的末尾，遍历数组使小于pivot的元素交换到前面
+    \item \textbf{分区逻辑}：i从1到n-1遍历，若A[i]<pivot则p++，交换A[p]与A[i]，最后交换A[0]与A[p]使pivot归位
+    \item \textbf{递归排序}：对pivot左侧子数组A[0..p-1]和右侧子数组A[p+1..n-1]分别递归调用快排
+    \item \textbf{终止条件}：子数组长度为0或1时已有序，直接返回
+    \item \textbf{时间复杂度}：平均$O(n\log n)$（每次平衡划分），最坏$O(n^2)$（每次划分极不平衡）
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+int partition(vector<int>& A, int low, int high) {
+    int pivot = A[low];
+    int p = low;
+    for (int i = low + 1; i <= high; i++) {
+        if (A[i] < pivot) {
+            p++;
+            swap(A[p], A[i]);}}
+    swap(A[low], A[p]);
+    return p;}
+void quickSort(vector<int>& A, int low, int high) {
+    if (low < high) {
+        int p = partition(A, low, high);
+        quickSort(A, low, p - 1);
+        quickSort(A, p + 1, high);}}
+\end{lstlisting}
+\begin{enumerate}
+    \item 选第一个元素作为基准，用指针p记录"小于基准的区域"的右边界
+    \item 从第二个元素开始遍历，如果比基准小，就扩展p，把这个元素交换到前面的区域
+    \item 遍历完后，把基准元素交换到p位置，这样基准左边都小，右边都大（或相等）
+    \item 对基准左边的子数组递归调用快排
+    \item 对基准右边的子数组递归调用快排
+    \item 重复直到所有子数组长度不超过1，排序完成
+\end{enumerate}

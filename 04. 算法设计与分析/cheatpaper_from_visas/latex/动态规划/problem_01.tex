@@ -1,0 +1,48 @@
+\section*{1. 0/1背包问题}
+
+给定n个物品和容量为C的背包，物品i的重量为$w_i$，价值为$v_i$。每个物品只能选择"装入"或"不装入"（不可分割），要求在背包总重量不超过C的前提下，使装入物品的总价值最大。
+
+\begin{itemize}
+    \item \textbf{状态定义}：dp[i][j]表示"前i个物品（物品1~i）放入容量为j的背包"的最大价值（子问题：限定物品范围和背包容量的最优解）
+    \item \textbf{转移方程}：若$j < w_i$则$dp[i][j] = dp[i-1][j]$；若$j \ge w_i$则$dp[i][j] = \max(dp[i-1][j], dp[i-1][j - w_i] + v_i)$
+    \item \textbf{初始化}：dp[0][j] = 0（j=0~C），dp[i][0] = 0（i=0~n）
+    \item \textbf{计算顺序}：i从1到n，j从1到C
+    \item \textbf{输出结果}：dp[n][C]
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+// 二维DP版本
+int knapsack(int n, int C, vector<int>& w, vector<int>& v) {
+    vector<vector<int>> dp(n + 1, vector<int>(C + 1, 0));
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= C; j++) {
+            if (j < w[i-1]) {
+                dp[i][j] = dp[i-1][j];
+            } else {
+                dp[i][j] = max(dp[i-1][j], dp[i-1][j-w[i-1]] + v[i-1]);
+            }
+        }
+    }
+    return dp[n][C];
+}
+
+// 空间优化版本（一维数组）
+int knapsackOptimized(int n, int C, vector<int>& w, vector<int>& v) {
+    vector<int> dp(C + 1, 0);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = C; j >= w[i]; j--) {  // 逆序遍历！
+            dp[j] = max(dp[j], dp[j-w[i]] + v[i]);
+        }
+    }
+    return dp[C];
+}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 建二维表格，行表示依次考虑每个物品，列表示背包容量从0到C
+    \item 从第一行第一列开始逐格填充：若当前物品重量超过当前容量，直接抄写上一行同列的值；若能装下，则比较"不装它"和"装它"两个值，取较大者
+    \item 空间优化可用一维数组，容量必须从大到小遍历
+    \item 最终右下角格子的值即为答案
+\end{enumerate}

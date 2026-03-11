@@ -1,0 +1,64 @@
+% ========== 自动生成的目录内容 ==========
+\vspace{8pt}
+\textbf{1.} 分数背包问题 \hfill 2\\
+给定n个物品，物品价值分别为 $P_i$，重量分别为 $W_i$，背包容量为 $M$。每种物品可部分装入，求最大化总价值 $\sum P_i X_i$ 且满足 $\sum W_i X_i \le M$。
+
+\vspace{8pt}
+\textbf{2.} 带截止时间的作业调度 \hfill 2\\
+有 $n$ 个作业需在一台机器上执行，每个作业单位时间完成，作业 $i$ 有截止时间 $d_i$ 和收益 $p_i$。求最大收益。
+
+\vspace{8pt}
+\textbf{3.} 硬币找零问题 \hfill 3\\
+假设有数目不限的面值为25美分、10美分、5美分、1美分的硬币，请使用最少个数的硬币凑出3.33美元。
+
+\vspace{8pt}
+\textbf{4.} 海岸线基站问题 \hfill 3\\
+海面上有一些船需与陆地通信，在x轴上布置基站覆盖半径为d的区域内的所有点。问在x轴上至少要安放几个点才能将所有船覆盖。
+
+\vspace{8pt}
+\textbf{5.} 生产与存储计划 \hfill 4\\
+工厂每月生产成本波动，存储成本固定为1。已知n个月的生产成本 $c_i$ 和需求量 $y_i$，决策每月生产数量使总成本最低。
+
+\vspace{8pt}
+\textbf{6.} 黑白点连线 \hfill 4\\
+直线上 $2n$ 个点，n黑n白，相邻点距离为1，将每个白点与一黑点相连，使连线总长度最小。
+
+\vspace{8pt}
+\textbf{7.} 活动选择问题 \hfill 5\\
+活动集合 $S=\{1,2,\ldots,n\}$，活动 $i$ 有起始时间 $s_i$ 和终止时间 $f_i$，同一时间只有一个活动使用资源。求 $S$ 的最大相容子集。
+
+\vspace{8pt}
+\textbf{8.} 哈夫曼编码问题 \hfill 5\\
+给定字符集 $C=\{c_1,c_2,\ldots,c_n\}$ 及其出现频率 $f=\{f_1,f_2,\ldots,f_n\}$，构造 $C$ 的最优前缀编码，使带权路径长度 $B(T)=\sum_{c \in C} f(c) \cdot d_T(c)$ 最小。
+
+\vspace{8pt}
+\textbf{9.} 最小生成树问题 (Kruskal算法) \hfill 6\\
+给定带权无向连通图 $G=(V,E)$，权函数 $W$，求 $G$ 的最小生成树，即权值 $W(T)=\sum_{(u,v) \in T} W(u,v)$ 最小的生成树。
+
+\vspace{8pt}
+\textbf{10.} 单源最短路径问题 (Dijkstra算法) \hfill 6\\
+给定带权图（每条边权值 $\ge 0$）和源点 $v$，求 $v$ 到其他所有顶点的最短路径。
+
+\columnbreak
+
+\vspace{1cm}
+{\large\textbf{贪心算法解题的"固有方法论"}}
+\vspace{0.2cm}
+
+贪心算法（Greedy Algorithm）的核心思想是"\textbf{只顾眼前，不顾未来}"。在每一步选择中都采取在当前状态下最好（局部最优）的选择，从而希望导致结果是全局最优的。
+
+\textbf{解题四步法：}
+
+\textbf{1. 贪心策略选择 (Greedy Choice)}：\\
+\textcolor{gray}{思考：用什么标准来做"贪心"？}\\
+\textcolor{gray}{技巧：通常需要对数据进行\textbf{排序}或使用\textbf{优先队列}}
+
+\textbf{2. 可行性检查 (Feasibility Check)}：\\
+\textcolor{gray}{思考：这个选择是否满足限制条件？}
+
+\textbf{3. 子问题化 (Sub-problem)}：\\
+\textcolor{gray}{做完一个选择后，原问题变成了什么样？}
+
+\textbf{4. 证明/验证 (Proof/Verify)}：\\
+\textcolor{gray}{尝试举反例，如果举不出反例，通常策略是正确的}\\
+\textcolor{gray}{常见的证明方法是"交换论证法"}

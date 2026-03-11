@@ -1,0 +1,46 @@
+\section*{15. 两元素和为X的分治算法}
+
+给定由n个实数构成的集合S和实数X，判断S中是否存在两个元素的和为X，要求设计分治算法求解。
+
+\begin{itemize}
+    \item \textbf{预处理}：先用归并排序对S排序，时间$O(n\log n)$，为后续双指针查找做准备
+    \item \textbf{分治分解}：将有序集合S均分为左子集L和右子集R
+    \item \textbf{递归求解}：递归判断L和R内部是否存在两元素和为X
+    \item \textbf{合并验证}：用双指针i（指向L首）、j（指向R尾）遍历，判断是否存在跨子集的两元素和为X
+    \item \textbf{双指针逻辑}：若S[i]+S[j]==X则返回true；若<X则i++（增大和）；若>X则j--（减小和）
+    \item \textbf{时间复杂度}：排序$O(n\log n)$，递归方程$T(n)=2T(n/2)+O(n)$，总计$O(n\log n)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+bool hasPairCross(vector<int>& S, int low, int mid, int high, int X) {
+    int i = low;
+    int j = high;
+    while (i <= mid && j > mid) {
+        int sum = S[i] + S[j];
+        if (sum == X) {
+            return true;
+        } else if (sum < X) {
+            i++;
+        } else {
+            j--;}}}}
+    return false;}
+bool hasTwoSumDC(vector<int>& S, int low, int high, int X) {
+    if (low >= high) return false;
+    int mid = (low + high) / 2;
+    bool leftFound = hasTwoSumDC(S, low, mid, X);
+    bool rightFound = hasTwoSumDC(S, mid + 1, high, X);
+    if (leftFound || rightFound) return true;
+    return hasPairCross(S, low, mid, high, X);}}
+bool hasTwoSum(vector<int>& S, int X) {
+    sort(S.begin(), S.end());
+    return hasTwoSumDC(S, 0, S.size() - 1, X);}}}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 先把数组排序（用归并排序），为双指针查找做准备
+    \item 把数组从中间分成左右两半，递归判断两边内部有没有符合条件的
+    \item 对于跨两边的情况，用双指针：一个指左半开头，一个指右半结尾
+    \item 计算两个指针指向的元素的和，如果等于X就找到了
+    \item 如果和小于X，左指针右移（找个更大的）；如果大于X，右指针左移（找个更小的）
+    \item 三种情况（左内、右内、跨）只要有一个true就返回true
+\end{enumerate}

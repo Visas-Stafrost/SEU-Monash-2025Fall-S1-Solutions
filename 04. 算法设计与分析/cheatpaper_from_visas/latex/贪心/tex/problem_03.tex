@@ -1,0 +1,36 @@
+\section*{3. 硬币找零问题}
+
+假设有数目不限的面值为25美分、10美分、5美分、1美分的硬币，请使用最少个数的硬币凑出3.33美元。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：优先使用面值\textbf{最大}的硬币
+    \item \textbf{注意事项}：此策略对特定面值体系（如美分）有效，对任意面值未必有效（需用动态规划）
+    \item \textbf{时间复杂度}：$O(K)$，K为硬币种类数
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+void solve_coins(int cents) {
+    int coins[] = {25, 10, 5, 1};
+    int count = 0;
+
+    for(int val : coins) {
+        int num = cents / val;
+        count += num;
+        cents %= val;
+        cout << "面值 " << val << ": "
+             << num << " 个" << endl;
+    }
+    cout << "总个数: " << count << endl;
+}
+\end{lstlisting}
+
+\textbf{解题步骤：}
+\begin{enumerate}
+    \item 将硬币面值按从大到小排序
+    \item 从最大面值开始，计算当前金额能包含多少个该面值硬币
+    \item 用取模运算得到剩余金额
+    \item 对下一个面值重复上述过程，直到金额为0
+    \item 累加所有硬币数量得到答案
+\end{enumerate}
+
+\textbf{示例：} 333美分 $= 13 \times 25 + 0 \times 10 + 1 \times 5 + 3 \times 1 = 17$个硬币

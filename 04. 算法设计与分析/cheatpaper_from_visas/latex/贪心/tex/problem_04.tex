@@ -1,0 +1,56 @@
+\section*{4. 海岸线基站问题}
+
+海面上有一些船需要与陆地进行通信，需要在海岸线上布置一些基站。现将问题抽象为，在x轴上方，给出N条船的坐标 $p_1, p_2, \ldots, p_n$，$p_i = (x_i, y_i)$，$y_i \ge 0, \ x_i^2 + y_i^2 \le d^2$，$1 \le i \le n$。在x轴上安放的基站可以覆盖半径为d的区域内的所有点，问在x轴上至少要安放几个点才可以将x轴上方的点都覆盖起来。试设计一个算法求解该问题，并分析算法的正确性。
+
+\begin{itemize}
+    \item \textbf{问题转化}：每个船 $i$ 在 x 轴上的覆盖范围为区间 $[x_i - \sqrt{d^2-y_i^2}, \ x_i + \sqrt{d^2-y_i^2}]$，转化为\textbf{给定 N 个区间，选最少的点使每个区间内至少有一个点}
+    \item \textbf{贪心策略}：
+    \begin{itemize}
+        \item 将所有区间按\textbf{右端点}从小到大排序
+        \item 选择第一个区间的右端点作为基站
+        \item 跳过所有包含该基站的区间，找到第一个未被覆盖的区间，选其右端点
+    \end{itemize}
+    \item \textbf{时间复杂度}：$O(N \log N)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Interval {
+    double l, r;
+};
+
+bool cmp(Interval a, Interval b) {
+    return a.r < b.r;
+}
+
+int solve_radar(int n, double d,
+                vector<pair<double, double>> points) {
+    vector<Interval> segs;
+    for(auto& p : points) {
+        if(p.second > d) return -1;
+        double delta = sqrt(d*d - p.second*p.second);
+        segs.push_back({p.first - delta,
+                        p.first + delta});
+    }
+    sort(segs.begin(), segs.end(), cmp);
+
+    int count = 0;
+    double last_pos = -1e18;
+
+    for(auto& s : segs) {
+        if(s.l > last_pos) {
+            count++;
+            last_pos = s.r;
+        }
+    }
+    return count;
+}
+\end{lstlisting}
+
+\textbf{解题步骤：}
+\begin{enumerate}
+    \item 对每个点，计算其在 x 轴上的覆盖区间，若 $y_i > d$ 则无解
+    \item 将所有区间按右端点从小到大排序
+    \item 初始化基站位置为极小值
+    \item 遍历排序后的区间，若当前区间左端点大于上一个基站位置，则在该区间右端点建立新基站
+    \item 继续遍历，直到处理完所有区间
+\end{enumerate}

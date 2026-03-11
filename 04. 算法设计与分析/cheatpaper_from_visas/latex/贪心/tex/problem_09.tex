@@ -1,0 +1,67 @@
+\section*{9. 最小生成树问题 (Kruskal算法)}
+
+给定带权无向连通图 $G=(V, E)$，权函数 $W: E \to \mathbb{R}$，求 $G$ 的最小生成树，即权值 $W(T) = \sum_{(u,v) \in T} W(u,v)$ 最小的生成树 $T=(V, T)$，其中 $T \subseteq E$。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：按权值从小到大选择边，若该边的两个端点属于不同的连通分量，则加入生成树；否则舍弃
+    \item \textbf{关键数据结构}：并查集（Union-Find）用于快速判断两个顶点是否属于同一连通分量
+    \item \textbf{时间复杂度}：$O(E \log E)$ 或 $O(E \log V)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Edge {
+    int u, v, weight;
+    bool operator<(const Edge& other) const {
+        return weight < other.weight; }
+};
+class UnionFind {
+    vector<int> parent, rank;
+public:
+    UnionFind(int n) : parent(n), rank(n, 0) {
+        for (int i = 0; i < n; i++)
+            parent[i] = i; }
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);
+        return parent[x]; }
+    bool unionSets(int x, int y) {
+        int px = find(x), py = find(y);
+        if (px == py) return false;
+        if (rank[px] < rank[py])
+            parent[px] = py;
+        else if (rank[px] > rank[py])
+            parent[py] = px;
+        else { parent[py] = px; rank[px]++; }
+        return true; }
+};
+int kruskal(int n, vector<Edge>& edges) {
+    sort(edges.begin(), edges.end());
+    UnionFind uf(n);
+    int totalWeight = 0, edgeCount = 0;
+    for (auto& e : edges) {
+        if (uf.unionSets(e.u, e.v)) {
+            totalWeight += e.weight;
+            if (++edgeCount == n - 1) break;
+        }
+    }
+    return totalWeight;
+}
+\end{lstlisting}
+
+\textbf{算法步骤：}
+\begin{enumerate}
+    \item 初始化：每个顶点自成一个连通分量
+    \item 将所有边按权值从小到大排序
+    \item 遍历排序后的边，对于每条边 $(u, v)$：
+    \begin{itemize}
+        \item 若 $u$ 和 $v$ 属于不同连通分量，则加入最小生成树，合并这两个连通分量
+        \item 否则，舍弃该边（会形成环）
+    \end{itemize}
+    \item 重复直到生成树包含 $V-1$ 条边或所有边已处理
+\end{enumerate}
+
+\textbf{正确性证明：}
+\begin{itemize}
+    \item \textbf{最优子结构}：设 $T$ 是 $G$ 的最小生成树，包含子树 $T_1$ 和 $T_2$，则 $T_1$ 和 $T_2$ 分别是各自子图的最小生成树
+    \item \textbf{贪心选择性}：设边 $(u, v)$ 是当前权值最小且两端点分属不同连通分量的边，则必存在一棵最小生成树包含 $(u, v)$
+\end{itemize}

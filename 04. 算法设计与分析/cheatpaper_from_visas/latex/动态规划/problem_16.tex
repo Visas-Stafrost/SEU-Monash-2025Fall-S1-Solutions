@@ -1,0 +1,57 @@
+\section*{16. 完全占满背包（恰好装满）}
+
+给定$n$个物品，物品$i$的大小为$w_i$、价值为$v_i$，背包容量为$C$。要求选择一组物品，\textbf{恰好占满}背包容量（选中物品大小和恰好为$C$），且总价值最大。
+
+
+
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[j]$表示恰好占满容量$j$时的最大价值
+    \item \textbf{初始化调整}：$dp[0] = 0$，$dp[j] = -\infty$（$j > 0$）
+    \item \textbf{转移方程}：若$dp[j-w_i] \ne -\infty$，$dp[j] = \max(dp[j], dp[j-w_i] + v_i)$
+    \item \textbf{最终结果}：$dp[C]$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+int knapsackExact(vector<int>& w, vector<int>& v, int C) {
+    int n = w.size();
+    const int NEG_INF = INT_MIN / 2;
+
+    vector<int> dp(C + 1, NEG_INF);
+    dp[0] = 0;  // 容量0恰好被占满
+
+    for (int i = 0; i < n; i++) {
+        // 逆序遍历（避免重复选择）
+        for (int j = C; j >= w[i]; j--) {
+            if (dp[j - w[i]] != NEG_INF) {
+                dp[j] = max(dp[j], dp[j - w[i]] + v[i]);
+            }
+        }
+    }
+
+    return dp[C] == NEG_INF ? -1 : dp[C];  // -1表示无解
+}
+
+// 测试
+int main() {
+    vector<int> w = {2, 3, 4};
+    vector<int> v = {3, 4, 5};
+    int C = 5;
+
+    int result = knapsackExact(w, v, C);
+    if (result != -1) {
+        cout << "恰好装满的最大价值: " << result << endl;
+    } else {
+        cout << "无法恰好装满背包" << endl;
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 初始化：dp[0]=0，其余都是负无穷大
+    \item 对每个物品，容量从大到小遍历
+    \item 只有当dp[j-重量]不是负无穷时，才能更新dp[j]
+    \item 保证只有"恰好装满"的状态之间才能转移
+\end{enumerate}
+

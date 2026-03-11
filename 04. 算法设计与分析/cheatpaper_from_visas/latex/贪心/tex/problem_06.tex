@@ -1,0 +1,38 @@
+\section*{6. 黑白点连线}
+
+给定直线上 $2n$ 个点的序列 $P[1,2,\ldots,2n]$，每个点 $P[i]$ 要么是白点要么是黑点，其中共有 $n$ 个白点和 $n$ 个黑点，相邻两个点之间距离均为1，请设计一个算法将每个白点与一黑点相连，使得连线的总长度最小。
+
+\textbf{示例}：图中有4个白点和4个黑点，以图中方式相连，连线总长度为 $1+1+1+5=8$。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：\textbf{顺序匹配} —— 第 1 个白点连第 1 个黑点，第 2 个白点连第 2 个黑点，以此类推
+    \item \textbf{直观理解}：避免连线"交叉"，交叉的连线通常比不交叉的更长（三角形两边之和大于第三边）
+    \item \textbf{时间复杂度}：$O(N \log N)$ (主要是排序)
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int solve_connect(int n,
+                  vector<int> whites,
+                  vector<int> blacks) {
+    sort(whites.begin(), whites.end());
+    sort(blacks.begin(), blacks.end());
+
+    int total_len = 0;
+    for(int i=0; i<n; ++i) {
+        total_len += abs(whites[i] - blacks[i]);
+    }
+    return total_len;
+}
+\end{lstlisting}
+
+\textbf{解题步骤：}
+\begin{enumerate}
+    \item 将所有白点按坐标从小到大排序
+    \item 将所有黑点按坐标从小到大排序
+    \item 依次将第 $i$ 个白点与第 $i$ 个黑点配对
+    \item 计算每对点的距离并累加
+    \item 返回总距离
+\end{enumerate}
+
+\textbf{正确性说明（交换论证）：}\\
+假设最优解中存在交叉配对，即存在白点 $w_i < w_j$ 和黑点 $b_k < b_l$，使得 $w_i$ 连 $b_l$，$w_j$ 连 $b_k$。则可交换为 $w_i$ 连 $b_k$，$w_j$ 连 $b_l$，新距离 $|w_i-b_k| + |w_j-b_l| \le |w_i-b_l| + |w_j-b_k|$，因此不会更差。重复消除所有交叉后得到顺序匹配。

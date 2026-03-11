@@ -1,0 +1,45 @@
+\section*{8. 大整数乘法}
+设X和Y为两个n位大整数（n为偶数），X拆分为A（前n/2位）和B（后n/2位），Y拆分为C（前n/2位）和D（后n/2位），即$X=A \cdot 2^{n/2}+B$，$Y=C \cdot 2^{n/2}+D$。设计优化方案通过减少乘法次数降低时间复杂度。
+\begin{itemize}
+    \item \textbf{直接展开}：需计算AC、AD、BC、BD共4次n/2位乘法，递归方程$T(n)=4T(n/2)+O(n)$，复杂度$O(n^2)$未优化
+    \item \textbf{Karatsuba算法}：通过代数变换设$Z_1=(A+B)(C+D)=AC+AD+BC+BD$，则$XY=Z_1 \cdot 2^{n/2}+Z_2 \cdot 2^{n/2}+BD$，乘法次数降为3次
+    \item \textbf{三次乘法}：只需计算$(A+B)(C+D)$、$AC$、$BD$，通过减法得到$AD+BC=Z_1-AC-BD$
+    \item \textbf{递归方程}：$T(n)=3T(n/2)+O(n)$，加法合并时间O(n)
+    \item \textbf{时间复杂度}：由Master定理，$a=3$，$b=2$，$\log_b a=\log_2 3 \approx 1.585>1$，故$T(n)=O(n^{\log_2 3}) \approx O(n^{1.585})$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+string karatsuba(string X, string Y) {
+    int n = max(X.length(), Y.length());
+    while (X.length() < n) X = "0" + X;
+    while (Y.length() < n) Y = "0" + Y;
+    if (n % 2 == 1) {
+        n++;
+        X = "0" + X;
+        Y = "0" + Y;
+    }}
+    if (n == 1) {
+        int val = (X[0] - '0') * (Y[0] - '0');
+        return to_string(val);
+    }}
+    int m = n / 2;
+    string A = X.substr(0, m);
+    string B = X.substr(m);
+    string C = Y.substr(0, m);
+    string D = Y.substr(m);
+    string Z1 = karatsuba(add(A, B), add(C, D));
+    string Z2 = karatsuba(A, C);
+    string Z3 = karatsuba(B, D);
+    string Z4 = subtract(subtract(Z1, Z2), Z3);
+    string result = add(shiftLeft(Z2, n), shiftLeft(Z4, m));
+    result = add(result, Z3);
+    return result;}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 把两个大整数从中间对半拆，得到A、B、C、D四个部分
+    \item 直接展开需要AC、AD、BC、BD四次乘法，效率不高
+    \item 用Karatsuba技巧：先算(A+B)(C+D)，再算AC和BD，通过减法得到AD+BC
+    \item 把三个结果按位权拼接：AC左移n位，(AD+BC)左移n/2位，BD不用移
+    \item 把三部分加起来得到最终结果
+    \item 比传统方法少一次乘法，复杂度从$O(n^2)$降到$O(n^{1.585})$
+\end{enumerate}

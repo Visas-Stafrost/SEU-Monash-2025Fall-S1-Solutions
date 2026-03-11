@@ -1,0 +1,51 @@
+\section*{2. 带截止时间的作业调度}
+
+有 $n$ 个作业需要在一台机器上执行，一个时刻机器上只能执行一个作业，每个作业可在单位时间内完成，作业 $i$ 有截止时间 $d_i$，当作业 $i$ 在截止时间被执行完，则可获得 $p_i$ 的收益，请设计算法获得最大收益，并分析算法的正确性。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：优先选择\textbf{收益 $p_i$ 最大}的作业
+    \item \textbf{策略执行}：将作业按收益降序排序，对每个作业尝试将其安排在\textbf{不超过截止时间的最晚空闲时间槽}
+    \item \textbf{时间复杂度}：$O(N^2)$ (简单查找) 或 $O(N \log N)$ (并查集优化)
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Job {
+    int id, d, p;
+};
+
+bool cmp(Job a, Job b) {
+    return a.p > b.p;
+}
+
+int solve_jobs(int n, vector<Job>& jobs) {
+    sort(jobs.begin(), jobs.end(), cmp);
+
+    int max_deadline = 0;
+    for(auto& j : jobs)
+        max_deadline = max(max_deadline, j.d);
+
+    vector<bool> slot(max_deadline + 1, false);
+    int totalProfit = 0;
+
+    for(int i=0; i<n; ++i) {
+        for(int j = min(max_deadline, jobs[i].d);
+            j >= 1; --j) {
+            if(!slot[j]) {
+                slot[j] = true;
+                totalProfit += jobs[i].p;
+                break;
+            }
+        }
+    }
+    return totalProfit;
+}
+\end{lstlisting}
+
+\textbf{解题步骤：}
+\begin{enumerate}
+    \item 按收益从高到低对所有作业排序
+    \item 找出最大截止时间，创建时间槽数组
+    \item 对每个作业，从其截止时间开始向前查找第一个空闲时间槽
+    \item 找到则占用该时间槽并累加收益，否则跳过该作业
+    \item 继续处理下一个作业，直到所有作业处理完毕
+\end{enumerate}

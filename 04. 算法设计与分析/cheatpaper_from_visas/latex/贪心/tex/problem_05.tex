@@ -1,0 +1,57 @@
+\section*{5. 生产与存储计划}
+
+某公司有工厂和仓库。由于原材料等价格波动，工厂每个月的生产成本也会波动，令第 $i$ 个月产品的单位生产成本为 $c_i$（该月生产一个产品的成本为 $c_i$）。仓库储存产品的也有成本，假设每个月产品的单位储存成本为固定值1（存储一个产品一个月的成本为1）。令第 $i$ 个月需要供应给客户的产品数量为 $y_i$，仓库里的和生产的产品均可供应给客户。假设仓库的容量无限大，供应给客户剩余的产品可储存在仓库中。若已知 $n$ 个月中各月的单位生产成本 $c_i$、以及产品供应量 $y_i$，设计一算法决策每个月的产品生产数量，使得 $n$ 个月的总成本最低。
+
+\textbf{示例}：$n=3$，$c: 2,5,3$，$y: 2,4,5$，则 $x: 6,0,5$。即第1个月生产6个供应2个（代价 $2 \times 2=4$），储存4个供应给第2个月（代价 $(2+1) \times 4=12$），第3个月生产5个供应5个（代价 $3 \times 5=15$），使总成本 $4+12+15=31$ 最小。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：对于第 $i$ 个月的需求 $y_i$，寻找"最便宜的供应源"
+    \item \textbf{供应源选择}：可以是当月生产（成本 $c_i$），也可以是之前月份生产并存储（成本 $c_{j} + (i-j)$）
+    \item \textbf{递推关系}：第 $i$ 月的最优单位成本 $best\_cost_i = \min(c_i, \ best\_cost_{i-1} + 1)$
+    \item \textbf{时间复杂度}：$O(N)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+void solve_production(int n,
+                      vector<int> c,
+                      vector<int> y) {
+    vector<int> x(n, 0);
+    long long total_cost = 0;
+
+    pair<int, int> best_source = {c[0], 0};
+
+    for(int i=0; i<n; ++i) {
+        if (i > 0) {
+            if (best_source.first + 1 < c[i]) {
+                best_source.first += 1;
+            } else {
+                best_source = {c[i], i};
+            }
+        } else {
+            best_source = {c[i], 0};
+        }
+
+        total_cost += (long long)best_source.first
+                      * y[i];
+        x[best_source.second] += y[i];
+    }
+
+    cout << "最小总成本: " << total_cost << endl;
+    cout << "生产计划 x: ";
+    for(int val : x) cout << val << " ";
+    cout << endl;
+}
+\end{lstlisting}
+
+\textbf{解题步骤：}
+\begin{enumerate}
+    \item 初始化最优供应源为第一个月，成本为 $c_0$
+    \item 对每个月份 $i$：
+    \begin{itemize}
+        \item 比较"延续之前存储"（成本+1）与"当月生产"（成本 $c_i$）
+        \item 选择更便宜的方案作为当前最优供应源
+        \item 将需求 $y_i$ 的成本累加到总成本
+        \item 记录生产计划，需求由最优源所在月份生产
+    \end{itemize}
+    \item 输出最小总成本和生产计划
+\end{enumerate}

@@ -1,0 +1,43 @@
+\section*{12. 堆排序}
+
+给定数组A，使用堆排序算法对其进行升序排序，要求展示最大堆的建立过程、堆顶元素的弹出与堆调整过程。
+
+\begin{itemize}
+    \item \textbf{堆性质}：最大堆中每个节点值$\ge$其子节点值，数组表示中节点i的左子为2i+1，右子为2i+2，父为$\lfloor$(i-1)/2$\rfloor$
+    \item \textbf{建堆}：从最后一个非叶子节点$\lfloor$n/2$\rfloor$-1开始，向前依次执行Heapify向下调整，时间$O(n)$
+    \item \textbf{Heapify}：对节点i，若其值小于子节点，则与最大子节点交换，并递归调整被交换的子节点
+    \item \textbf{排序循环}：交换堆顶（最大值）与堆尾，缩小堆范围，对新的堆顶执行Heapify重建最大堆
+    \item \textbf{时间复杂度}：建堆$O(n)$，n次弹出各$O(\log n)$，总计$O(n\log n)$；空间$O(1)$原地排序
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+void heapify(vector<int>& A, int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    if (left < n && A[left] > A[largest])
+        largest = left;
+    if (right < n && A[right] > A[largest])
+        largest = right;
+    if (largest != i) {
+        swap(A[i], A[largest]);
+        heapify(A, n, largest);}}
+void buildHeap(vector<int>& A, int n) {
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        heapify(A, n, i);}}
+void heapSort(vector<int>& A) {
+    int n = A.size();
+    buildHeap(A, n);
+    for (int i = n - 1; i > 0; i--) {
+        swap(A[0], A[i]);
+        heapify(A, i, 0);}}}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 从最后一个非叶子节点开始，对每个节点执行Heapify调整，把数组变成最大堆
+    \item Heapify调整时，如果节点比子节点小，就跟最大子节点交换，然后继续往下调整
+    \item 建好堆后，堆顶就是最大值，把它和堆尾元素交换，最大值就放到有序区了
+    \item 堆范围缩小1，对新的堆顶再执行Heapify重建最大堆
+    \item 重复"交换堆顶和堆尾、缩小堆、重建堆"这个过程
+    \item 直到堆只剩一个元素，排序完成
+\end{enumerate}

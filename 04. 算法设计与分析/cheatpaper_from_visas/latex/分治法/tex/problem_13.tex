@@ -1,0 +1,61 @@
+\section*{13. 最近点对问题}
+
+给定平面上n个点的集合Q，设计分治算法找出距离最近的两个点，要求说明预处理、分解、递归求解、合并的完整流程。
+
+\begin{itemize}
+    \item \textbf{预处理}：将点集按x坐标排序，便于均匀划分，时间$O(n\log n)$
+    \item \textbf{分解}：按x坐标中位数用垂线x=m划分点集为L（x$\le$m）和R（x>m），确保规模平衡
+    \item \textbf{递归求解}：分别找L和R的最近点对，距离为d1和d2，令d=min(d1,d2)
+    \item \textbf{合并（临界区）}：筛选x$\in$[m-d,m+d]的点集Yd按y排序，对每个点仅与后6个点比较（鸽巢原理），时间$O(n)$
+    \item \textbf{时间复杂度}：递归方程$T(n)=2T(n/2)+O(n)$，Master定理得$O(n\log n)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Point {
+    double x, y;
+double dist(Point p1, Point p2) {
+    return sqrt((p1.x - p2.x) * (p1.x - p2.x) +
+                (p1.y - p2.y) * (p1.y - p2.y));}
+double bruteForce(vector<Point>& pts, int left, int right) {
+    double minDist = INT_MAX;
+    for (int i = left; i <= right; i++)
+        for (int j = i + 1; j <= right; j++)
+            minDist = min(minDist, dist(pts[i], pts[j]));
+    return minDist;}
+double stripClosest(vector<Point>& strip, double d) {
+    double minDist = d;
+    sort(strip.begin(), strip.end(),
+         [](Point a, Point b) { return a.y < b.y; });
+    for (size_t i = 0; i < strip.size(); i++) {
+        for (size_t j = i + 1; j < strip.size() &&
+             (strip[j].y - strip[i].y) < minDist; j++) {
+            minDist = min(minDist, dist(strip[i], strip[j]));
+        }    }}
+    return minDist;}
+double closestUtil(vector<Point>& pts, int left, int right) {
+    if (right - left + 1 <= 3)
+        return bruteForce(pts, left, right);
+    int mid = (left + right) / 2;
+    Point midPoint = pts[mid];
+    double d1 = closestUtil(pts, left, mid);
+    double d2 = closestUtil(pts, mid + 1, right);
+    double d = min(d1, d2);
+    vector<Point> strip;
+    for (int i = left; i <= right; i++)
+        if (abs(pts[i].x - midPoint.x) < d)
+            strip.push_back(pts[i]);
+    return min(d, stripClosest(strip, d));}}}
+double closestPair(vector<Point>& pts) {
+    sort(pts.begin(), pts.end(),
+         [](Point a, Point b) { return a.x < b.x; });
+    return closestUtil(pts, 0, pts.size() - 1);}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 先把所有点按x坐标排序，方便后面均匀划分
+    \item 从x坐标中位数位置把点集分成左右两半，递归在两边找最近的点对
+    \item 得到两边的最小距离d后，最近点对要么在左边，要么在右边，要么跨过分界线
+    \item 跨界点对只能在分界线左右各d宽度的条形区域里
+    \item 把这个条形区域的点按y坐标排序，每个点只需跟后面6个点比较距离（鸽巢原理保证）
+    \item 三种情况（左、右、跨）取最小就是最终答案
+\end{enumerate}

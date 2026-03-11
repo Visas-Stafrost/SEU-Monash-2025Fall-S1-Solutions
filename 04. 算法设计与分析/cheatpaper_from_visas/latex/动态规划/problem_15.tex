@@ -1,0 +1,66 @@
+\section*{15. 受限最短路径（带钱数约束）}
+
+给定无向图$G=(V,E)$，边$e_{uv}$长度为$l_{uv}$，顶点$u$花费为$c[u]$。从$s$出发到$t$，初始钱数为$M$。每经过顶点$u$需支付$c[u]$（剩余钱数$\ge c[u]$才能通过），求$s$到$t$的最短路径长度。
+
+
+
+\begin{itemize}
+    \item \textbf{状态扩展}：$dist[u][m]$表示到达顶点$u$、剩余钱数为$m$时的最短路径长度
+    \item \textbf{状态转移}：对边$(u,v)$，$$dist[v][m-c[v]] = \min(dist[v][m-c[v]], dist[u][m] + l_{uv})$$
+    \item \textbf{初始化}：$dist[s][M] = 0$，其余为$\infty$
+    \item \textbf{优先队列}：按路径长度从小到大处理状态
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Edge {
+    int to, len;
+};
+
+struct State {
+    int u, money;
+    int dist;
+    bool operator>(const State& other) const {
+        return dist > other.dist;
+    }
+};
+
+int constrainedShortestPath(int n, int M, int s, int t,
+                            vector<int>& cost,
+                            vector<vector<Edge>>& adj) {
+    // dist[u][m] = 到达u、剩余m元的最短距离
+    vector<vector<int>> dist(n, vector<int>(M + 1, INT_MAX / 2));
+    dist[s][M] = 0;
+
+    // 优先队列（小根堆）
+    priority_queue<State, vector<State>, greater<State>> pq;
+    pq.push({s, M, 0});
+
+    while (!pq.empty()) {
+        State cur = pq.top(); pq.pop();
+
+        int u = cur.u, m = cur.money, d = cur.dist;
+
+        if (d > dist[u][m]) continue;  // 已优化
+        if (u == t) return d;  // 到达终点
+
+        for (Edge& e : adj[u]) {
+            int v = e.to;
+            int newMoney = m - cost[v];
+
+            if (newMoney >= 0 && d + e.len < dist[v][newMoney]) {
+                dist[v][newMoney] = d + e.len;
+                pq.push({v, newMoney, dist[v][newMoney]});
+            }
+        }
+    }
+
+    return -1;  // 不可达
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 状态扩展：dist[u][m]表示"到达u且剩余钱为m时的最短距离"
+    \item 起点dist[s][M]=0，其余为无穷大
+    \item 用优先队列按距离处理，对出边松弛操作
+\end{enumerate}
+

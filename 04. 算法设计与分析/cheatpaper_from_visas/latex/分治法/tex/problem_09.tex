@@ -1,0 +1,58 @@
+\section*{9. Strassen矩阵乘法}
+
+给定两个n$\times$n矩阵A和B，使用Strassen算法（分治法）计算矩阵乘积C=A$\times$B，要求展示7个中间矩阵的定义及复杂度分析。
+
+\begin{itemize}
+    \item \textbf{传统方法}：按定义计算C的每个元素需n次乘法，共$n^3$次乘法，递归方程$T(n)=8T(n/2)+O(n^2)$
+    \item \textbf{Strassen优化}：构造7个中间矩阵M1~M7，通过7次乘法替代传统的8次乘法
+    \item \textbf{7个中间矩阵}：
+    \begin{itemize}
+        \item $M_1=(A_{11}+A_{22})(B_{11}+B_{22})$，$M_2=(A_{21}+A_{22})B_{11}$
+        \item $M_3=A_{11}(B_{12}-B_{22})$，$M_4=A_{22}(B_{21}-B_{11})$
+        \item $M_5=(A_{11}+A_{12})B_{22}$，$M_6=(A_{21}-A_{11})(B_{11}+B_{12})$
+        \item $M_7=(A_{12}-A_{22})(B_{21}+B_{22})$
+    \end{itemize}
+    \item \textbf{合并结果}：$C_{11}=M_1+M_4-M_5+M_7$，$C_{12}=M_3+M_5$，$C_{21}=M_2+M_4$，$C_{22}=M_1-M_2+M_3+M_6$
+    \item \textbf{时间复杂度}：$T(n)=7T(n/2)+O(n^2)$，Master定理得$O(n^{\log_2 7}) \approx O(n^{2.807})$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+vector<vector<int>> matrixAdd(vector<vector<int>>& A,
+                              vector<vector<int>>& B) {
+    int n = A.size();
+    vector<vector<int>> C(n, vector<int>(n));
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            C[i][j] = A[i][j] + B[i][j];
+    return C;}
+vector<vector<int>> matrixSub(vector<vector<int>>& A,
+                              vector<vector<int>>& B) {
+    int n = A.size();
+    vector<vector<int>> C(n, vector<int>(n));
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            C[i][j] = A[i][j] - B[i][j];
+    return C;}
+vector<vector<int>> strassen(vector<vector<int>>& A,
+                             vector<vector<int>>& B) {
+    int n = A.size();
+    if (n <= 64) {
+        vector<vector<int>> C(n, vector<int>(n, 0));
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                for (int k = 0; k < n; k++)
+                    C[i][j] += A[i][k] * B[k][j];
+        return C;
+    }}
+    int m = n / 2;
+    return C;}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 把大矩阵从中间分成4个小矩阵：A11、A12、A21、A22和B的对应4块
+    \item 传统方法需要8次小矩阵乘法才能得到C的4个块
+    \item Strassen方法计算7个特殊的中间矩阵M1到M7，每个都是小矩阵的加减后再乘
+    \item 通过这7个中间矩阵的加减运算，拼出C的4个块
+    \item 虽然加减次数增多，但乘法从8次减到7次，递归下去效率提升明显
+    \item 复杂度从$O(n^3)$降到$O(n^{2.807})$，矩阵大时优势显著
+\end{enumerate}

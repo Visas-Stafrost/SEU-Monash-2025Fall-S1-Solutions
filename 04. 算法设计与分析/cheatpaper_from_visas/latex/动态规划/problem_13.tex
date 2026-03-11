@@ -1,0 +1,63 @@
+\section*{13. DAG最安全路径问题}
+
+给定有向无环图$G=(V,E)$，边$e_i$的事故概率为$p_i$。路径安全性定义为路径上所有边概率的乘积。求从起点$s$到终点$t$的最安全路径（安全性最大的路径）。
+
+
+
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[u]$表示从起点$s$到节点$u$的最大传输安全性
+    \item \textbf{转移方程}：对所有出边$(u, v)$，$$dp[v] = \max(dp[v], dp[u] \times p_{uv})$$
+    \item \textbf{边界条件}：$dp[s] = 1$，其余节点$dp[u] = 0$
+    \item \textbf{拓扑排序}：按拓扑序遍历节点，保证$u$的所有前驱已处理
+    \item \textbf{时间复杂度}：$O(V+E)$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Edge {
+    int to;
+    double prob;  // 安全概率
+};
+
+double safestPathDAG(int n, vector<vector<Edge>>& adj, int s, int t) {
+    vector<double> dp(n, 0.0);
+    dp[s] = 1.0;
+
+    // 拓扑排序（Kahn算法）
+    vector<int> inDegree(n, 0);
+    for (int u = 0; u < n; u++) {
+        for (Edge& e : adj[u]) {
+            inDegree[e.to]++;
+        }
+    }
+
+    queue<int> q;
+    for (int u = 0; u < n; u++) {
+        if (inDegree[u] == 0) q.push(u);
+    }
+
+    // 按拓扑序DP
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+
+        for (Edge& e : adj[u]) {
+            // 松弛操作
+            if (dp[u] * e.prob > dp[e.to]) {
+                dp[e.to] = dp[u] * e.prob;
+            }
+
+            if (--inDegree[e.to] == 0) {
+                q.push(e.to);
+            }
+        }
+    }
+
+    return dp[t];  // 返回最大安全性
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 先做拓扑排序：统计入度，入度为0的点入队处理
+    \item 建一维数组dp，起点设为1，其余为0
+    \item 按拓扑序处理：对出边用"当前dp值乘概率"更新终点
+\end{enumerate}
+

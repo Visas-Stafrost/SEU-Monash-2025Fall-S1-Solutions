@@ -1,0 +1,227 @@
+% 算法题LaTeX模板 - 双栏紧凑排版
+% 编译方式: xelatex main.tex (推荐) 或 pdflatex main.tex
+
+\documentclass[10pt, a4paper]{article}
+
+% ============ 基础包 ============
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ctex}           % 中文支持
+\usepackage{geometry}       % 页面设置
+\usepackage{multicol}       % 多栏布局
+\usepackage{enumitem}       % 列表设置
+\usepackage{listings}       % 代码高亮
+\usepackage{xcolor}         % 颜色
+\usepackage{titlesec}       % 标题间距
+\usepackage{parskip}        % 段落间距
+\usepackage{amsmath}        % 数学公式
+\usepackage{amssymb}        % 数学符号（\mathbb等）
+\usepackage{graphicx}       % 图片
+\usepackage{nopageno}       % 无页码
+
+% ============ 极限页面设置 ============
+\geometry{
+    left=0.5cm,
+    right=0.5cm,
+    top=0.5cm,
+    bottom=0.5cm,
+    nohead,    % 无页眉
+    nofoot     % 无页脚
+}
+
+% ============ 代码样式设置 ============
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codegreen}{RGB}{0,150,0}
+\definecolor{codeblue}{RGB}{0,0,200}
+\definecolor{codered}{RGB}{200,0,0}
+
+\lstset{
+    basicstyle=\ttfamily\scriptsize,     % 极小字号
+    breaklines=true,                     % 自动换行
+    breakatwhitespace=false,
+    breakindent=0pt,
+    frame=single,                        % 单线框
+    backgroundcolor=\color{codebg},      % 背景色
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codered},
+    showstringspaces=false,
+    captionpos=b,
+    aboveskip=2pt,                       % 上方间距
+    belowskip=2pt,                       % 下方间距
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+    framesep=3pt,
+    framerule=0.5pt,
+    tabsize=4,
+    numbers=none,                        % 不显示行号
+}
+
+% ============ 紧凑标题设置 ============
+\titlespacing*{\section}{0pt}{4pt}{2pt}  % 左边距, 上间距, 下间距
+\titlespacing*{\subsection}{0pt}{2pt}{1pt}
+\titlespacing*{\subsubsection}{0pt}{1pt}{0pt}
+
+% 设置标题字号
+\setcounter{secnumdepth}{0}  % 不显示编号
+\setlength{\columnsep}{0.3cm}  % 栏间距
+
+% 自定义section格式
+\titleformat{\section}
+  {\normalfont\bfseries\large}{\thesection}{0pt}{}
+
+\titleformat{\subsection}
+  {\normalfont\bfseries\normalsize}{}{0pt}{}
+
+% ============ 全局样式调整 ============
+\raggedcolumns  % 栏内容不拉伸对齐，保持自然紧凑
+\setlength{\parindent}{0pt}      % 无首行缩进
+\setlength{\parskip}{3pt}        % 段落间距
+\setitemize{itemsep=1pt,topsep=1pt,leftmargin=1.2em}  % 列表紧凑
+
+\begin{document}
+
+% ============ 标题页 ============
+\begin{center}
+    \huge\textbf{递归方程求解与 Master 定理}
+\end{center}
+
+% ============ 双栏开始 ============
+\begin{multicols*}{2}
+
+% ==========================================
+% 第一部分：理论讲解
+% ==========================================
+\subsection{1. 逐层展开法 (Iteration Method)}
+\textbf{适用场景}：形式简单、规模逐层递减（如 $T(n-1)$）的递归方程。
+
+\textbf{核心思想}：将递归式一步步展开，直到找到规律，最后求和。
+
+\textbf{步骤}：
+\begin{enumerate}
+    \item 写出 $T(n)$ 的表达式。
+    \item 将 $T(n-1)$（或下一层）代入，得到含 $T(n-2)$ 的式子。
+    \item 重复此过程，直到第 $k$ 层。
+    \item 观察通项公式，利用初始条件（如 $T(0)$）确定 $k$ 的值，最后计算级数和。
+\end{enumerate}
+
+\subsection{2. 变量替换法 (Substitution)}
+\textbf{适用场景}：$T(n)$ 内部包含根号（如 $\sqrt{n}$）或指数形式，无法直接使用 Master 定理。
+
+\textbf{核心思想}：通过换元（如令 $n = 2^m$ 或 $m = \log n$），转化为熟悉的线性递归或 Master 定理形式。
+
+\textbf{步骤}：
+\begin{enumerate}
+    \item 设定变换，例如 $m = \log n$ （即 $n = 2^m$）。
+    \item 将原方程中的 $n$ 替换为 $m$ 的表达式。
+    \item 定义新函数 $S(m) = T(2^m)$，解出 $S(m)$。
+    \item 最后反解回 $T(n)$。
+\end{enumerate}
+
+\subsection{3. Master 定理 (Master Theorem)}
+\textbf{适用场景}：分治算法递归式 $T(n) = aT(n/b) + f(n)$。
+
+\textbf{核心思想}：比较 $f(n)$ 与 $n^{\log_b a}$ 的增长速率。
+
+\textbf{定理内容}：
+比较 $n^{\log_b a}$ （临界函数）与 $f(n)$ （非递归代价）：
+
+\begin{itemize}
+    \item \textbf{Case 1 (头重脚轻)}：若 $n^{\log_b a}$ 更大，即 $f(n) = O(n^{\log_b a - \epsilon})$，则：
+    $$T(n) = \Theta(n^{\log_b a})$$
+    
+    \item \textbf{Case 2 (势均力敌)}：若两者同阶，即 $f(n) = \Theta(n^{\log_b a} \log^k n)$，则：
+    $$T(n) = \Theta(n^{\log_b a} \log^{k+1} n)$$
+    
+    \item \textbf{Case 3 (头轻脚重)}：若 $f(n)$ 更大，即 $f(n) = \Omega(n^{\log_b a + \epsilon})$，且满足正则条件 $af(n/b) \le cf(n)$，则：
+    $$T(n) = \Theta(f(n))$$
+\end{itemize}
+
+\textbf{易错点}：
+\begin{itemize}
+    \item \textbf{多项式差距}：Master 定理要求 $f(n)$ 和 $n^{\log_b a}$ 的差距必须是 $n^\epsilon$ 级别的。如果只是相差 $\log n$ 倍（例如 $n$ vs $n \log n$），则属于 Case 2，而不是 Case 1 或 Case 3。
+
+    \item \textbf{Case 3 的正则条件}：考试中如果用到 Case 3，必须写一句"经检验满足正则条件 $a f(n/b) \le c f(n)$"，否则可能会被扣分。
+
+    \item \textbf{失效情况}：如果 $f(n)$ 落入 Case 1 和 Case 2 之间，或者 Case 2 和 Case 3 之间的"缝隙"（非多项式差距），Master 定理无法使用，需回归到递归树展开法。
+\end{itemize}
+
+% 强制换栏
+\vfill\null
+\columnbreak
+
+% ==========================================
+% 第二部分：习题全解
+% ==========================================
+\subsection{1. $T(n)=3T(n-1), T(0)=5$（逐层展开法）}
+$T(n) = 3T(n-1) = 3[3T(n-2)] = \dots = 3^k T(n-k)$\newline
+当 $k=n$ 时到达边界 $T(0)=5$。
+$T(n) = 3^n T(0) = 5 \cdot 3^n$\newline
+\textbf{结果}：$T(n) = 5 \cdot 3^n$
+
+\vspace{12pt}
+\subsection{2. $T(n)=5T(n-1)-6T(n-2)$, $T(0)=2$, $T(1)=5$ (特征方程法)}
+
+特征方程 $r^2 - 5r + 6 = 0$，根为 $r_1=2, r_2=3$。\newline
+通解：$T(n) = c_1 \cdot 2^n + c_2 \cdot 3^n$。
+代入初始条件 $c_1 = -1, c_2 = 2$。\newline
+\textbf{结果}：$T(n) = 2 \cdot 3^n - 2^n$
+
+\vspace{12pt}
+\subsection{3. $T(n)=nT(n-1)+1, T(0)=1$（转化法）}
+两边除以 $n!$ 得 $\frac{T(n)}{n!} = \frac{T(n-1)}{(n-1)!} + \frac{1}{n!}$。\newline
+令 $S(n) = \frac{T(n)}{n!}$，$S(n) = S(n-1) + \frac{1}{n!}$。
+累加得 $S(n) = \sum_{k=0}^n \frac{1}{k!}$。\newline
+\textbf{结果}：$T(n) = n! \sum_{k=0}^n \frac{1}{k!} \approx \lfloor e \cdot n! \rfloor$
+
+\vspace{12pt}
+\subsection{4. $T(n)=5T(n/3)+n$（Master Case 1）}
+1. 参数：$a=5, b=3, f(n)=n$。
+2. 临界：$\log_3 5 \approx 1.46$。\newline
+3. 比较：$f(n) = n^1 = O(n^{1.46})$，判定：Case 1，递归主导。\newline
+\textbf{结果}：$T(n) = \Theta(n^{\log_3 5})$
+
+\vspace{12pt}
+\subsection{5. $T(n)=7T(n/7)+n$（Master Case 2）}
+1. 参数：$a=7, b=7, f(n)=n$。
+2. 临界：$\log_7 7 = 1$。\newline
+3. 比较：$f(n) = n^1$ 与 $n^{\log_b a}$ 同阶 ($k=0$)，判定：Case 2。\newline
+\textbf{结果}：$T(n) = \Theta(n \log n)$
+
+\vspace{12pt}
+\subsection{6. $T(n) = 2T(n/2) + n^2$（Master Case 3）}
+1. 参数：$a=2, b=2, f(n)=n^2$。
+2. 临界：$\log_2 2 = 1$。\newline
+3. 比较：$f(n) = n^2 = \Omega(n^{1+\epsilon})$。\newline
+4. 正则验证：$2(n/2)^2 = n^2/2 \le c n^2$ (取 $c=1/2$)。\newline
+\textbf{结果}：$T(n) = \Theta(n^2)$
+
+\vspace{12pt}
+\subsection{7. $T(n)=8T(n/6)+n^{1.5}\log n$（Master Case 3）}
+1. 参数：$a=8, b=6$。
+2. 临界：$\log_6 8 \approx 1.16$。\newline
+3. 比较：$f(n)$ 指数 1.5 > 1.16。\newline
+4. 正则验证：
+$ 8(\frac{n}{6})^{1.5}\log \frac{n}{6} \approx 0.54 n^{1.5}\log n \le c f(n) $，
+取 $c=0.6$ 成立。\newline
+\textbf{结果}：$T(n) = \Theta(n^{1.5} \log n)$
+
+\vspace{12pt}
+\subsection{8. $T(n)=\sqrt{n}T(\sqrt{n})+n$（变量替换）}
+两边除以 $n$ 得 $\frac{T(n)}{n} = \frac{T(\sqrt{n})}{\sqrt{n}} + 1$。\newline
+令 $n=2^k$，设 $S(k) = T(2^k)/2^k$。\newline
+得 $S(k) = S(k/2) + 1$，由 Master Case 2 得 $S(k) = \Theta(\log k)$。\newline
+\textbf{结果}：$T(n) = \Theta(n \log \log n)$
+
+\vspace{12pt}
+\subsection{9. $T(n)=2T(n^{1/3})+1$（变量替换 + Master）}
+令 $n=3^m \Rightarrow m=\log_3 n$。设 $S(m) = T(3^m)$。
+原式变为 $S(m) = 2S(m/3) + 1$。
+Master 分析：$\log_3 2 \approx 0.63 > 0$ (Case 1)。
+$S(m) = \Theta(m^{\log_3 2})$。
+代回 $n$：\newline
+\textbf{结果}：$T(n) = \Theta((\log n)^{\log_3 2})$
+
+\end{multicols*}
+
+\end{document}

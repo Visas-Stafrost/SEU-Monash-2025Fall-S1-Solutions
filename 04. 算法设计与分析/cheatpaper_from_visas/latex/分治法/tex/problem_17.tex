@@ -1,0 +1,46 @@
+\section*{17. 数组中两元素和大于0的对数量}
+
+给定大小为n的数组A，求数组中不同对(i,j)（i<j）的数量，使得A[i]+A[j]>0。
+
+\begin{itemize}
+    \item \textbf{分治排序}：用归并排序将A升序排列，时间$O(n\log n)$，为双指针统计做准备
+    \item \textbf{分治分解}：将有序数组划分为左子集L和右子集R
+    \item \textbf{递归统计}：分别计算L内部、R内部符合条件的对数量countL和countR
+    \item \textbf{合并统计}：用双指针i（指向L首）、j（指向R尾）遍历，统计跨子集的对数量cross
+    \item \textbf{双指针逻辑}：若A[i]+A[j]>0，则R[j]及R[j]之前的所有元素与A[i]的和都>0，count+=j-mid+1，i++；否则j--
+    \item \textbf{时间复杂度}：排序$O(n\log n)$，分治递归方程$T(n)=2T(n/2)+O(n)$，总计$O(n\log n)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int countCross(vector<int>& A, int low, int mid, int high) {
+    int i = low;
+    int j = high;
+    int count = 0;
+    while (i <= mid && j > mid) {
+        if (A[i] + A[j] > 0) {
+            count += j - mid;
+            i++;
+        } else {
+            j--;}}}}
+    return count;}
+int countPairsDC(vector<int>& A, int low, int high) {
+    if (low >= high) return 0;
+    int mid = (low + high) / 2;
+    int countL = countPairsDC(A, low, mid);
+    int countR = countPairsDC(A, mid + 1, high);
+    int countCross = countCross(A, low, mid, high);
+    return countL + countR + countCross;}}}
+int countPairsWithSumGreaterThanZero(vector<int>& A) {
+    sort(A.begin(), A.end());
+    return countPairsDC(A, 0, A.size() - 1);}}}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 先用归并排序把数组升序排列
+    \item 把数组从中间分成左右两半，递归统计两边内部符合条件的对数
+    \item 对于跨两边的情况，用双指针：一个指左半开头，一个指右半结尾
+    \item 如果两个指针指向的元素和大于0，那右半剩下的所有元素跟左半当前元素的和也都大于0
+    \item 累加符合条件的对数，然后左指针右移（尝试更小的元素）
+    \item 如果和小于等于0，右指针左移（尝试更大的元素）
+    \item 总对数等于"左内+右内+跨子集"之和
+\end{enumerate}

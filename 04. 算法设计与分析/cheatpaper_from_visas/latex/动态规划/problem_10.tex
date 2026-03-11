@@ -1,0 +1,65 @@
+\section*{10. 钢条切割问题}
+
+给定长度为$n$英寸的钢条和价格表$p_i$（$i=1 \sim n$），钢条可切割为任意段，求切割后总收益最大。例如：$n=4$，$p=[1,5,8,9]$时，最优方案为切成2段长度2，收益$5+5=10$。
+
+
+
+\begin{itemize}
+    \item \textbf{状态定义}：$r[n]$表示长度为$n$的钢条的最大收益
+    \item \textbf{转移方程}：$$r[n] = \max_{1 \le i \le n} \{p[i] + r[n-i]\}$$
+    \item \textbf{边界条件}：$r[0] = 0$
+    \item \textbf{时间复杂度}：$O(n^2)$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+// 方法1：自底向上DP
+int rodCutting(vector<int>& p, int n) {
+    vector<int> r(n + 1, 0);
+    r[0] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        int maxVal = INT_MIN;
+        for (int j = 1; j <= i; j++) {
+            maxVal = max(maxVal, p[j-1] + r[i - j]);
+        }
+        r[i] = maxVal;
+    }
+
+    return r[n];
+}
+
+// 方法2：带解构造
+pair<int, vector<int>> rodCuttingWithSolution(vector<int>& p, int n) {
+    vector<int> r(n + 1, 0);
+    vector<int> s(n + 1, 0);  // s[i] = 长度i的最优第一刀切割位置
+
+    for (int i = 1; i <= n; i++) {
+        int maxVal = INT_MIN;
+        for (int j = 1; j <= i; j++) {
+            if (p[j-1] + r[i - j] > maxVal) {
+                maxVal = p[j-1] + r[i - j];
+                s[i] = j;
+            }
+        }
+        r[i] = maxVal;
+    }
+
+    // 回溯构造解
+    vector<int> cuts;
+    int temp = n;  // 保存原始n值
+    while (temp > 0) {
+        cuts.push_back(s[temp]);
+        temp -= s[temp];
+    }
+
+    return {r[n], cuts};
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 建一维数组，r[i]表示长度为i的钢条最大收益
+    \item 从长度1到n：对每个长度i，枚举第一刀切多长j
+    \item 第一刀切j，卖p[j]的钱，剩下的长度i-j继续求最优
+    \item 取所有j中收益最大的填入r[i]
+\end{enumerate}
+

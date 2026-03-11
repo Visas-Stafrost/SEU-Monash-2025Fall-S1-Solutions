@@ -1,0 +1,65 @@
+\section*{8. 最长非降子序列（LIS）}
+
+给定长度为$n$的序列$A$，求最长非降子序列（LIS）的长度（非降指$a_i \le a_j$对$i < j$成立，子序列不要求连续）。
+
+\textbf{方法1：基础DP（$O(n^2)$）}
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[i]$表示以$A[i]$结尾的最长非降子序列长度
+    \item \textbf{转移方程}：若$A[j] \le A[i]$则$dp[i] = \max(dp[i], dp[j] + 1)$
+    \item \textbf{边界条件}：$dp[i] = 1$（至少包含自己）
+\end{itemize}
+
+\textbf{方法2：贪心+二分（$O(n \log n)$）}
+\begin{itemize}
+    \item \textbf{核心思想}：维护数组$tail[len]$，表示长度为$len$的非降子序列的最小末尾元素
+    \item \textbf{操作}：若$A[i] > tail[len]$则扩展，否则二分查找替换第一个$> A[i]$的位置
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+// 方法1：基础DP O(n^2)
+int LIS basic(vector<int>& A) {
+    int n = A.size();
+    vector<int> dp(n, 1);
+
+    for (int i = 1; i < n; i++) {
+        for (int j = 0; j < i; j++) {
+            if (A[j] <= A[i]) {
+                dp[i] = max(dp[i], dp[j] + 1);
+            }
+        }
+    }
+
+    return *max_element(dp.begin(), dp.end());
+}
+
+// 方法2：贪心+二分 O(n log n)
+int LIS_optimized(vector<int>& A) {
+    vector<int> tail;  // tail[len] = 长度为len+1的LIS最小末尾
+
+    for (int x : A) {
+        if (tail.empty() || x > tail.back()) {
+            tail.push_back(x);
+        } else {
+            // 二分查找第一个> x的位置
+            auto it = lower_bound(tail.begin(), tail.end(), x);
+            *it = x;
+        }
+    }
+
+    return tail.size();
+}
+\end{lstlisting}
+
+\textbf{基础DP步骤}：
+\begin{enumerate}
+    \item 建一维数组，dp[i]表示以位置i结尾的最长非降子序列长度
+    \item 对每个位置，往左找所有比它小的位置j，更新dp[i]
+    \item 取所有dp[i]中的最大值
+\end{enumerate}
+
+\textbf{优化版步骤}：
+\begin{enumerate}
+    \item 维护一个数组，记录"长度为x的非降子序列末尾的最小可能值"
+    \item 遇到新数：如果比末尾大就接在后面，否则用二分查找替换第一个比它大的位置
+    \item 最终数组长度就是答案，时间O(n log n)
+\end{enumerate}

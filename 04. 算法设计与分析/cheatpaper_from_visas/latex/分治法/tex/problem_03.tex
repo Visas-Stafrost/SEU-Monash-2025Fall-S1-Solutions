@@ -1,0 +1,47 @@
+\section*{3. 最大子数组问题}
+
+给定包含n个整数（有正有负）的数组A，设计O(nlogn)时间的分治算法找出和最大的非空连续子数组，同时设计O(n)时间的Kadane算法。
+
+\begin{itemize}
+    \item \textbf{分治策略}：将数组A[low..high]拆分为左半A[low..mid]和右半A[mid+1..high]，最大子数组必在左、右、或跨越中点三者之一
+    \item \textbf{跨越中点求解}：从mid向左扫描得最大左段和，从mid+1向右扫描得最大右段和，两者相加即为跨越中点的最大子数组和
+    \item \textbf{递归求解}：左半和右半的最大子数组通过递归求解，终止条件为子数组长度为1
+    \item \textbf{Kadane算法}：维护current\_max（以当前元素结尾的最大子数组和）和global\_max（全局最大），current\_max = max(A[i], current\_max + A[i])
+    \item \textbf{时间复杂度}：分治法O(nlogn)，Kadane算法O(n)
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int maxCrossingSubarray(vector<int>& A, int low, int mid, int high) {
+    int left_sum = INT_MIN, sum = 0;
+    for (int i = mid; i >= low; i--) {
+        sum += A[i];
+        left_sum = max(left_sum, sum);}
+    int right_sum = INT_MIN;
+    sum = 0;
+    for (int i = mid + 1; i <= high; i++) {
+        sum += A[i];
+        right_sum = max(right_sum, sum);}
+    return left_sum + right_sum;}
+int maxSubarrayDC(vector<int>& A, int low, int high) {
+    if (low == high) return A[low];
+    int mid = (low + high) / 2;
+    int left_max = maxSubarrayDC(A, low, mid);
+    int right_max = maxSubarrayDC(A, mid + 1, high);
+    int cross_max = maxCrossingSubarray(A, low, mid, high);
+    return max({left_max, right_max, cross_max});}
+int maxSubarrayKadane(vector<int>& A) {
+    int current_max = A[0];
+    int global_max = A[0];
+    for (int i = 1; i < A.size(); i++) {
+        current_max = max(A[i], current_max + A[i]);
+        global_max = max(global_max, current_max);}
+    return global_max;}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 把数组从中间分开，最大子数组要么全在左边，要么全在右边，要么跨过中点
+    \item 左边和右边的最大子数组：递归调用自己去找
+    \item 跨中点的最大子数组：从中点往左扫找到最大左段，往右扫找到最大右段，加起来
+    \item 三种情况的最大值就是答案
+    \item Kadane算法更简单：遍历数组，对于每个位置决定"从这里重新开始"还是"延续之前的子数组"
+\end{enumerate}

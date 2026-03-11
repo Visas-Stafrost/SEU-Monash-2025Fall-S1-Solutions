@@ -1,0 +1,63 @@
+\section*{7. 最大子数组问题（分治法）}
+
+给定$n$个整数（有正有负）的数组$A$，设计$O(n \log n)$算法，找出和最大的非空连续子数组。
+
+\begin{itemize}
+    \item \textbf{分治思想}：
+    \begin{itemize}
+        \item \textbf{分解}：将数组分为左半$L$和右半$R$
+        \item \textbf{解决}：递归求左、右最大子数组
+        \item \textbf{合并}：计算跨越中点的最大子数组，取三者最大值
+    \end{itemize}
+    \item \textbf{跨越中点的计算}：
+    从中点向左记录最大后缀和，向右记录最大前缀和，相加得跨越最大值
+    \item \textbf{递推公式}：
+    $$T(n) = 2T(n/2) + O(n) \Rightarrow T(n) = O(n \log n)$$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+// 跨越中点的最大子数组和
+int maxCrossing(vector<int>& A, int l, int mid, int r) {
+    // 向左找最大后缀和
+    int leftSum = INT_MIN, sum = 0;
+    for (int i = mid; i >= l; i--) {
+        sum += A[i];
+        leftSum = max(leftSum, sum);
+    }
+
+    // 向右找最大前缀和
+    int rightSum = INT_MIN;
+    sum = 0;
+    for (int i = mid + 1; i <= r; i++) {
+        sum += A[i];
+        rightSum = max(rightSum, sum);
+    }
+
+    return leftSum + rightSum;
+}
+
+// 分治主函数
+int maxSubarray(vector<int>& A, int l, int r) {
+    if (l == r) return A[l];  // 基础情况
+
+    int mid = (l + r) / 2;
+
+    // 三者取最大
+    int leftMax = maxSubarray(A, l, mid);
+    int rightMax = maxSubarray(A, mid + 1, r);
+    int crossMax = maxCrossing(A, l, mid, r);
+
+    return max({leftMax, rightMax, crossMax});
+}
+
+int maxSubarray(vector<int>& A) {
+    return maxSubarray(A, 0, A.size() - 1);
+}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 如果只有一个元素，直接返回
+    \item 从中间切开，分别递归求左右两半的最大子数组
+    \item 再算跨越中点的：中点往左最大后缀加中点往右最大前缀
+    \item 在"左边最大""右边最大""跨越最大"三者中取最大
+\end{enumerate}

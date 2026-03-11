@@ -1,0 +1,59 @@
+\section*{17. 数组最大子段的个数（O(n)）}
+
+设$A[1..n]$是长度为$n$的数组，存放可重复的整数。最大子段指其和不小于任何子段和的子段。要求设计$O(n)$算法，求最大子段的个数。
+
+
+
+\begin{itemize}
+    \item \textbf{状态定义}：$currSum$当前和，$currCount$当前个数，$globalSum$全局最大，$globalCount$全局个数
+    \item \textbf{转移规则}：若$A[i] > currSum + A[i]$则新子段；若$A[i] < currSum + A[i]$则延续；若相等则个数相加
+    \item \textbf{全局更新}：若$currSum > globalSum$则更新；若相等则累加个数
+    \item \textbf{时间复杂度}：$O(n)$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+int maxSubarrayCount(vector<int>& A) {
+    int n = A.size();
+    if (n == 0) return 0;
+
+    long long currSum = A[0];
+    long long currCount = 1;
+    long long globalSum = A[0];
+    long long globalCount = 1;
+
+    for (int i = 1; i < n; i++) {
+        long long sumExtend = currSum + A[i];
+        long long sumNew = A[i];
+
+        if (sumNew > sumExtend) {
+            // 新子段更优
+            currSum = sumNew;
+            currCount = 1;
+        } else if (sumNew < sumExtend) {
+            // 延续更优
+            currSum = sumExtend;
+        } else {
+            // 两者相等，个数相加
+            currSum = sumExtend;
+            currCount += currCount;
+        }
+
+        // 更新全局最大值
+        if (currSum > globalSum) {
+            globalSum = currSum;
+            globalCount = currCount;
+        } else if (currSum == globalSum) {
+            globalCount += currCount;
+        }
+    }
+
+    return globalCount;
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 维护"当前和"、"当前个数"、"全局最大"、"全局个数"
+    \item 比较"重新开始"和"延续前面"哪个更大
+    \item 相等则累加个数
+\end{enumerate}
+

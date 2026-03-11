@@ -1,0 +1,49 @@
+\section*{7. 活动选择问题}
+
+活动集合 $S=\{1,2,\ldots,n\}$，活动 $i$ 有起始时间 $s_i$ 和终止时间 $f_i$（$s_i \le f_i$），活动表示为 $x_i=[s_i, f_i]$。同一时间只有一个活动可以使用资源。活动 $i$ 和 $j$ 是相容的，当且仅当 $s_j \ge f_i$ 或 $s_i \ge f_j$。求 $S$ 的最大相容子集。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：将活动按结束时间递增排序（$f_1 \le f_2 \le \ldots \le f_n$），每次选择结束时间最早且与已选活动相容的活动
+    \item \textbf{时间复杂度}：$O(N \log N)$ (主要是排序时间)
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Activity {
+    int id, start, finish;
+};
+
+bool cmp(Activity a, Activity b) {
+    return a.finish < b.finish;  // 按结束时间排序
+}
+
+vector<int> greedyActivitySelector(
+        vector<Activity>& activities) {
+    sort(activities.begin(),
+         activities.end(), cmp);
+
+    vector<int> A;
+    A.push_back(activities[0].id);
+
+    for (int i = 1; i < activities.size(); i++) {
+        // 如果当前活动的开始时间
+        // >= 最后一个选中活动的结束时间
+        if (activities[i].start >=
+            activities[A.back()].finish) {
+            A.push_back(activities[i].id);
+        }
+    }
+    return A;
+}
+\end{lstlisting}
+
+\textbf{算法步骤：}
+\begin{enumerate}
+    \item 将所有活动按结束时间从小到大排序
+    \item 选择第一个活动（结束最早的活动）加入集合 $A$
+    \item 从第二个活动开始遍历，若当前活动与 $A$ 中最后一个活动相容（即开始时间 $\ge$ 最后活动的结束时间），则加入 $A$
+    \item 返回相容活动集合 $A$
+\end{enumerate}
+
+\textbf{最优子结构性质：} 设活动按结束时间递增排序，若 $A$ 是包含活动1的最优解，则 $A' = A - \{1\}$ 是 $S' = \{i \in S \mid s_i \ge f_1\}$ 的最优解。
+
+\textbf{贪心选择性：} 每次选择结束时间最早的相容活动，总能得到最优解。

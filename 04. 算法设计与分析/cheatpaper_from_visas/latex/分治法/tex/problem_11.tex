@@ -1,0 +1,43 @@
+\section*{11. 第k小元素（选择问题）}
+
+给定无序数组A，使用分治法查找该数组的第k小元素，要求展示Partition过程及递归查找步骤。
+
+\begin{itemize}
+    \item \textbf{Partition分区}：选择基准元素pivot，划分数组为左（小于pivot）、中（pivot）、右（大于等于pivot）三部分，返回pivot的最终位置pos
+    \item \textbf{k值判断}：若k==pos+1则pivot即为第k小元素；若k<pos+1则在左子数组递归查找第k小；若k>pos+1则在右子数组递归查找第k-pos-1小
+    \item \textbf{k值调整}：递归右子数组时，k值需减去pos+1（排除左子数组和pivot）
+    \item \textbf{平均复杂度}：每次Partition期望划分平衡，$T(n)=T(n/2)+O(n)$，得$O(n)$；最坏$O(n^2)$（每次划分极不平衡）
+    \item \textbf{优化}：随机选择pivot或使用Median-of-Medians算法可保证最坏$O(n)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int partition(vector<int>& A, int low, int high) {
+    int pivot = A[low];
+    int p = low;
+    for (int i = low + 1; i <= high; i++) {
+        if (A[i] < pivot) {
+            p++;
+            swap(A[p], A[i]);}}
+    swap(A[low], A[p]);
+    return p;}
+int quickSelect(vector<int>& A, int low, int high, int k) {
+    if (low == high) return A[low];
+    int pos = partition(A, low, high);
+    if (k == pos + 1) {
+        return A[pos];
+    } else if (k < pos + 1) {
+        return quickSelect(A, low, pos - 1, k);
+    } else {
+        return quickSelect(A, pos + 1, high, k - pos - 1);}}}
+int findKthSmallest(vector<int>& A, int k) {
+    return quickSelect(A, 0, A.size() - 1, k);}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 选一个基准元素，用Partition把数组分成"小于基准"和"大于等于基准"两部分
+    \item 基准元素归位后得到位置pos，说明它左边有pos个元素比它小
+    \item 如果k等于pos+1，那基准就是第k小元素，直接返回
+    \item 如果k小于pos+1，说明第k小元素在左边，递归在左边找第k小
+    \item 如果k大于pos+1，说明第k小元素在右边，递归在右边找第k-pos-1小（要减去左边和基准）
+    \item 重复直到找到为止
+\end{enumerate}

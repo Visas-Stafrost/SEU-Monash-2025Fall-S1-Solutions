@@ -1,0 +1,71 @@
+\section*{18. 最少插入字符使字符串成为回文}
+
+给定字符串$S$，设计算法在$S$中插入最少的字符，使其成为回文字符串。例如：$S=\text{"ab"}$，插入1个字符得"aba"或"bab"。
+
+\textbf{原因}：回文中"已有的最长回文部分"等价于$S$与$S^{rev}$的LCS，剩余部分需插入对应字符补全回文。
+
+\begin{itemize}
+    \item \textbf{核心结论}：最少插入字符数 = $|S| - \text{LCS长度}$
+    \item \textbf{方法}：LCS为原串$S$与其反转串$S^{rev}$的最长公共子序列
+    \item \textbf{算法步骤}：求$S^{rev}$，求LCS，计算$|S| - \text{LCS}$
+    \item \textbf{时间复杂度}：$O(n^2)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int minInsertionsToPalindrome(string S) {
+    int n = S.length();
+
+    // 构造反转字符串
+    string S_rev = S;
+    reverse(S_rev.begin(), S_rev.end());
+
+    // 求LCS长度
+    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (S[i-1] == S_rev[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+
+    int lcsLen = dp[n][n];
+    return n - lcsLen;  // 最少插入字符数
+}
+
+// 空间优化版本（O(n)空间）
+int minInsertionsToPalindromeOptimized(string S) {
+    int n = S.length();
+    string S_rev = S;
+    reverse(S_rev.begin(), S_rev.end());
+
+    vector<int> dp(n + 1, 0);
+
+    for (int i = 1; i <= n; i++) {
+        int prev = 0;  // dp[i-1][j-1]
+        for (int j = 1; j <= n; j++) {
+            int temp = dp[j];
+            if (S[i-1] == S_rev[j-1]) {
+                dp[j] = prev + 1;
+            } else {
+                dp[j] = max(dp[j], dp[j-1]);
+            }
+            prev = temp;
+        }
+    }
+
+    return n - dp[n];
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 要插入的字符数等于"原串长度减去原串的最长回文子序列长度"
+    \item 原串的最长回文子序列等价于"原串"和"反转串"的LCS
+    \item 先求反转串，再用LCS算法求两者的最长公共子序列
+    \item 原串长度减去LCS长度就是答案
+\end{enumerate}
+

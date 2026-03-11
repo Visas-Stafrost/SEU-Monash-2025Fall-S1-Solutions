@@ -1,0 +1,73 @@
+\section*{11. 最长公共子序列（LCS）}
+
+给定两个序列$X=(x_1,x_2,\ldots,x_m)$和$Y=(y_1,y_2,\ldots,y_n)$，求其最长公共子序列的长度及具体序列（子序列不要求连续）。例如：$X=\text{"ABCBDAB"}$，$Y=\text{"BDCABA"}$，LCS为$\text{"BCAB"}$或$\text{"BDAB"}$，长度为4。
+
+
+
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[i][j]$表示$X[1..i]$与$Y[1..j]$的LCS长度
+    \item \textbf{转移方程}：若$X[i]=Y[j]$则$dp[i][j]=dp[i-1][j-1]+1$，否则$dp[i][j]=\max(dp[i-1][j],dp[i][j-1])$
+    \item \textbf{边界条件}：$dp[0][j] = 0$，$dp[i][0] = 0$
+    \item \textbf{时间复杂度}：$O(mn)$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+// 计算LCS长度
+int LCSLength(string X, string Y) {
+    int m = X.length(), n = Y.length();
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (X[i-1] == Y[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+
+    return dp[m][n];
+}
+
+// 回溯构造LCS序列
+string LCS(string X, string Y) {
+    int m = X.length(), n = Y.length();
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    // 填充DP表
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (X[i-1] == Y[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+
+    // 回溯构造LCS
+    string lcs = "";
+    int i = m, j = n;
+    while (i > 0 && j > 0) {
+        if (X[i-1] == Y[j-1]) {
+            lcs = X[i-1] + lcs;
+            i--; j--;
+        } else if (dp[i-1][j] > dp[i][j-1]) {
+            i--;
+        } else {
+            j--;
+        }
+    }
+
+    return lcs;
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 建二维表，dp[i][j]表示两个串前i和前j个字符的LCS长度
+    \item 字符相同就等于左上角加1，不相同就取左边和上边较大的
+    \item 第一行和第一列全为0
+    \item 右下角就是LCS长度
+\end{enumerate}
+

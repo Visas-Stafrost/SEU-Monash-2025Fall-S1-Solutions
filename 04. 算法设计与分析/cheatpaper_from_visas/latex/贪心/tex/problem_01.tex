@@ -1,0 +1,52 @@
+\section*{1. 分数背包问题}
+
+给定n个物品，物品价值分别为 $P_1, P_2, \ldots, P_n$，物品重量分别为 $W_1, W_2, \ldots, W_n$，背包容量为 $M$。每种物品可部分装入到背包中。输出 $X_1, X_2, \ldots, X_n$（$0 \le X_i \le 1$），使得 $\sum_{i=1}^{n} P_i X_i$ 最大，且 $\sum_{i=1}^{n} W_i X_i \le M$。试设计一个算法求解该问题，分析算法的正确性。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：优先选择\textbf{单位重量价值} ($v_i = P_i / W_i$) 最高的物品
+    \item \textbf{时间复杂度}：$O(N \log N)$ (排序时间)
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Item {
+    int id;
+    double p, w, ratio;
+};
+
+bool cmp(Item a, Item b) {
+    return a.ratio > b.ratio;
+}
+
+void solve_knapsack(int n, double M,
+                    vector<double> P,
+                    vector<double> W) {
+    vector<Item> items(n);
+    for(int i=0; i<n; ++i)
+        items[i] = {i, P[i], W[i], P[i]/W[i]};
+
+    sort(items.begin(), items.end(), cmp);
+
+    vector<double> X(n, 0.0);
+    double totalVal = 0;
+
+    for(int i=0; i<n; ++i) {
+        if(items[i].w <= M) {
+            X[items[i].id] = 1.0;
+            totalVal += items[i].p;
+            M -= items[i].w;
+        } else {
+            X[items[i].id] = M / items[i].w;
+            totalVal += items[i].p * X[items[i].id];
+            break;
+        }
+    }
+}
+\end{lstlisting}
+
+\textbf{解题步骤：}
+\begin{enumerate}
+    \item 计算每个物品的单位重量价值 $v_i = P_i / W_i$
+    \item 按单位价值从高到低排序所有物品
+    \item 依次选择物品，若能完整装入则全部拿走，否则拿部分装满背包
+    \item 累加总价值，输出每个物品的装入比例 $X_i$
+\end{enumerate}

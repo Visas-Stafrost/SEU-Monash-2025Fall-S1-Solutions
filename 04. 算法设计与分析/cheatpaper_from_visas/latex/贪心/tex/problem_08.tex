@@ -1,0 +1,65 @@
+\section*{8. 哈夫曼编码问题}
+
+给定字符集 $C=\{c_1, c_2, \ldots, c_n\}$ 及其出现频率 $f=\{f_1, f_2, \ldots, f_n\}$，构造 $C$ 的最优前缀编码，使带权路径长度 $B(T) = \sum_{c \in C} f(c) \cdot d_T(c)$ 最小，其中 $d_T(c)$ 是字符 $c$ 在二叉树 $T$ 中的深度。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：每次选择频率最小的两个字符（或子树），合并为一棵新的子树，其频率为两者之和
+    \item \textbf{数据结构}：使用优先队列（最小堆）维护待合并的节点
+    \item \textbf{时间复杂度}：$O(N \log N)$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct Node {
+    int freq;
+    char ch;
+    Node *left, *right;
+
+    Node(int f, char c = '$',
+         Node* l = nullptr, Node* r = nullptr)
+        : freq(f), ch(c), left(l), right(r) {}
+};
+
+struct Compare {
+    bool operator()(Node* a, Node* b) {
+        return a->freq > b->freq;
+    }
+};
+
+Node* buildHuffmanTree(
+        map<char, int>& freqMap) {
+    priority_queue<Node*,
+                   vector<Node*>,
+                   Compare> minHeap;
+
+    for (auto& p : freqMap) {
+        minHeap.push(new Node(p.second, p.first));
+    }
+
+    while (minHeap.size() > 1) {
+        Node* left = minHeap.top();
+        minHeap.pop();
+
+        Node* right = minHeap.top();
+        minHeap.pop();
+
+        Node* parent = new Node(
+            left->freq + right->freq,
+            '$', left, right);
+
+        minHeap.push(parent);
+    }
+    return minHeap.top();
+}
+\end{lstlisting}
+
+\textbf{算法步骤：}
+\begin{enumerate}
+    \item 为每个字符创建一棵只包含根节点的二叉树，根节点权值为该字符频率，得到森林 $F = \{T_1, T_2, \ldots, T_n\}$
+    \item 重复以下步骤，直到 $F$ 中只剩一棵树：
+    \begin{itemize}
+        \item 从 $F$ 中选择根节点权值最小的两棵二叉树，作为左、右子树构造一棵新的二叉树
+        \item 新树的根节点权值等于其左右子树根节点权值之和
+        \item 从 $F$ 中删除这两棵二叉树，并将新构造的二叉树加入 $F$
+    \end{itemize}
+    \item $F$ 中剩下的最后一棵树即为哈夫曼树，左分支编码为0，右分支编码为1
+\end{enumerate}

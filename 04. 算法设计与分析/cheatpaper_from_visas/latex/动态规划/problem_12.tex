@@ -1,0 +1,60 @@
+\section*{12. 最优二叉搜索树}
+
+给定$n$个有序关键字$k_1 < k_2 < \ldots < k_n$，每个关键字$k_i$的成功搜索概率为$p_i$，失败搜索概率为$q_0,q_1,\ldots,q_n$。构造使平均搜索长度最小的二叉搜索树。
+
+
+
+\begin{itemize}
+    \item \textbf{状态定义}：$c[i][j]$表示关键字$k_{i+1} \sim k_j$的最优BST的平均搜索长度，$w[i][j]$表示区间$[i,j]$的总权值
+    \item \textbf{转移方程}：$$c[i][j] = w[i][j] + \min_{i < k \le j} \{c[i][k-1] + c[k][j]\}$$
+    \item \textbf{边界条件}：$c[i][i] = 0$，$w[i][i] = q_i$
+    \item \textbf{时间复杂度}：$O(n^3)$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+double optimalBST(vector<double>& p, vector<double>& q, int n) {
+    // c[i][j]: 区间[i,j]的最小代价
+    // w[i][j]: 区间[i,j]的总权值
+    // root[i][j]: 区间[i,j]的根节点（用于构造BST）
+    vector<vector<double>> c(n + 2, vector<double>(n + 2, 0));
+    vector<vector<double>> w(n + 2, vector<double>(n + 2, 0));
+    vector<vector<int>> root(n + 2, vector<int>(n + 2, 0));
+
+    // 初始化：区间长度为0
+    for (int i = 1; i <= n + 1; i++) {
+        w[i][i-1] = q[i-1];
+        c[i][i-1] = 0;
+    }
+
+    // 按区间长度递增
+    for (int x = 1; x <= n; x++) {
+        for (int i = 1; i <= n - x + 1; i++) {
+            int j = i + x - 1;
+            w[i][j] = w[i][j-1] + p[j] + q[j];
+            c[i][j] = 1e300;  // 相当于double类型的无穷大
+
+            // 枚举根节点k
+            for (int k = i; k <= j; k++) {
+                double cost = c[i][k-1] + c[k+1][j] + w[i][j];
+                if (cost < c[i][j]) {
+                    c[i][j] = cost;
+                    root[i][j] = k;
+                }
+            }
+        }
+    }
+
+    return c[1][n];  // 最小平均搜索长度
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 建二维表，c[i][j]表示用关键字i+1到j构建BST的最小平均搜索长度
+    \item 按区间长度从小到大算
+    \item 枚举哪个关键字当根
+    \item 取所有根中代价最小的
+\end{enumerate}
+
+
+\textbf{优化方法}：利用Knuth优化（四边形不等式），将枚举根的范围从$[i,j]$缩小至$[root[i][j-1], root[i+1][j]]$，时间复杂度可降至$O(n^2)$。
+

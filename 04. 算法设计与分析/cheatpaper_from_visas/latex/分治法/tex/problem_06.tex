@@ -1,0 +1,31 @@
+\section*{6. 折半搜索（查找成功案例）}
+给定有序数组A，使用折半搜索算法查找目标元素target，要求展示每次查找的low、mid、high值及比较过程，若查找成功返回元素下标，失败返回-1。
+\begin{itemize}
+    \item \textbf{初始化}：low=0（数组起始），high=n-1（数组结束）
+    \item \textbf{中点计算}：mid=$\lfloor$(low+high)/2$\rfloor$
+    \item \textbf{比较调整}：若target==A[mid]则查找成功；若target>A[mid]则目标在右半，low=mid+1；若target<A[mid]则目标在左半，high=mid-1
+    \item \textbf{终止条件}：找到目标返回mid，或low>high时返回-1
+    \item \textbf{时间复杂度}：每次排除一半，O(log n)
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+int binarySearch(vector<int>& A, int target) {
+    int low = 0, high = A.size() - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (A[mid] == target) {
+            return mid;
+        } else if (A[mid] < target) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;}}
+    return -1;}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 设置初始搜索范围：low指向第一个元素，high指向最后一个元素
+    \item 计算中点位置mid，比较目标值和A[mid]的大小
+    \item 如果相等，找到了，返回mid
+    \item 如果目标值更大，说明目标在右半边，让low移到mid+1
+    \item 如果目标值更小，说明目标在左半边，让high移到mid-1
+    \item 重复直到找到目标或low超过high
+\end{enumerate}

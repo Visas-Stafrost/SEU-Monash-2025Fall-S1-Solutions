@@ -1,0 +1,159 @@
+% 算法题LaTeX模板 - 双栏紧凑排版
+% 编译方式: xelatex main.tex (推荐) 或 pdflatex main.tex
+
+\documentclass[10pt, a4paper]{article}
+
+% ============ 基础包 ============
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ctex}           % 中文支持
+\usepackage{geometry}       % 页面设置
+\usepackage{multicol}       % 多栏布局
+\usepackage{enumitem}       % 列表设置
+\usepackage{listings}       % 代码高亮
+\usepackage{xcolor}         % 颜色
+\usepackage{titlesec}       % 标题间距
+\usepackage{parskip}        % 段落间距
+\usepackage{amsmath}        % 数学公式
+\usepackage{graphicx}       % 图片
+
+% ============ 极限页面设置 ============
+\geometry{
+    left=0.5cm,
+    right=0.5cm,
+    top=0.5cm,
+    bottom=0.5cm,
+    nohead,    % 无页眉
+    nofoot     % 无页脚
+}
+
+% ============ 代码样式设置 ============
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codegreen}{RGB}{0,150,0}
+\definecolor{codeblue}{RGB}{0,0,200}
+\definecolor{codered}{RGB}{200,0,0}
+
+\lstset{
+    basicstyle=\ttfamily\scriptsize,     % 极小字号
+    breaklines=true,                     % 自动换行
+    breakatwhitespace=false,
+    breakindent=0pt,
+    frame=single,                        % 单线框
+    backgroundcolor=\color{codebg},      % 背景色
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codered},
+    showstringspaces=false,
+    captionpos=b,
+    aboveskip=2pt,                       % 上方间距
+    belowskip=2pt,                       % 下方间距
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+    framesep=3pt,
+    framerule=0.5pt,
+    tabsize=4,
+    numbers=none,                        % 不显示行号
+}
+
+% ============ C++ 代码设置 ============
+\lstdefinestyle{cppstyle}{
+    language=C++,
+    morekeywords={include, define, ifdef, ifndef, endif, using, namespace, std, vector, string, map, set, unordered_map, unordered_set},
+}
+
+% ============ 紧凑标题设置 ============
+\titlespacing*{\section}{0pt}{4pt}{2pt}  % 左边距, 上间距, 下间距
+\titlespacing*{\subsection}{0pt}{2pt}{1pt}
+\titlespacing*{\subsubsection}{0pt}{1pt}{0pt}
+
+% 设置标题字号
+\setcounter{secnumdepth}{0}  % 不显示编号
+\setlength{\columnsep}{0.3cm}  % 栏间距
+
+% 自定义section格式
+\titleformat{\section}
+  {\normalfont\bfseries\large}{\thesection}{0pt}{}
+
+\titleformat{\subsection}
+  {\normalfont\bfseries\normalsize}{}{0pt}{}
+
+% ============ 全局样式调整 ============
+\raggedcolumns  % 栏内容不拉伸对齐，保持自然紧凑
+\setlength{\parindent}{0pt}      % 无首行缩进
+\setlength{\parskip}{3pt}        % 段落间距
+\setitemize{itemsep=1pt,topsep=1pt,leftmargin=1.2em}  % 列表紧凑
+
+% ============ 每题模板（可选） ============
+% 如果想让每题单独一页，取消下面注释
+% \newcommand{\problempage}[1]{
+%     \begin{minipage}[t][0.99\textheight][t]{\linewidth}
+%         #1
+%     \end{minipage}
+%     \vfill
+% }
+
+\begin{document}
+
+% ============ 目录页 ============
+\begin{center}
+    \huge\textbf{动态规划}
+\end{center}
+
+\vspace{0.3cm}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{0.3cm}
+
+\begin{multicols*}{2}
+\setlength{\parskip}{3pt}
+\normalsize
+\input{catalog_content.tex}
+\end{multicols*}
+
+\clearpage
+
+% ============ 双栏开始 ============
+\begin{multicols*}{2}
+
+% ========== 自动生成的题目内容 ==========
+\input{problem_01.tex}
+\par\columnbreak
+\input{problem_02.tex}
+\par\columnbreak
+\input{problem_03.tex}
+\par\columnbreak
+\input{problem_04.tex}
+\par\columnbreak
+\input{problem_05.tex}
+\par\columnbreak
+\input{problem_06.tex}
+\par\columnbreak
+\input{problem_07.tex}
+\par\columnbreak
+\input{problem_08.tex}
+\par\columnbreak
+\input{problem_09.tex}
+\par\columnbreak
+\input{problem_10.tex}
+\par\columnbreak
+\input{problem_11.tex}
+\par\columnbreak
+\input{problem_12.tex}
+\par\columnbreak
+\input{problem_13.tex}
+\par\columnbreak
+\input{problem_14.tex}
+\par\columnbreak
+\input{problem_15.tex}
+\par\columnbreak
+\input{problem_16.tex}
+\par\columnbreak
+\input{problem_17.tex}
+\par\columnbreak
+\input{problem_18.tex}
+\par\columnbreak
+\input{problem_19.tex}
+% ========== 自动生成内容结束 ==========
+
+\end{multicols*}
+
+\end{document}

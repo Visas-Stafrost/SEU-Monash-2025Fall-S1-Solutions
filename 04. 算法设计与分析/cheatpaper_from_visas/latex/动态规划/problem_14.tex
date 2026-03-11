@@ -1,0 +1,57 @@
+\section*{14. 环形房间化学品存放问题}
+
+给定$n$个首尾相连的环形房间，每个房间容量为$w_i$（杂物房间容量为0）。约束：化学品不能存放在相邻房间。求最多能存放的化学品总容量。
+
+\textbf{线性序列DP（打家劫舍）}：
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[i]$表示前$i$个房间的最大容量
+    \item \textbf{转移方程}：$dp[i] = \max(dp[i-1], dp[i-2] + w_i)$
+    \item \textbf{边界条件}：$dp[0] = 0$，$dp[1] = w_1$
+\end{itemize}
+
+\textbf{环形转线性}：首尾相邻，拆分为两个线性问题（不选第1个或不选第n个）
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+// 线性序列DP（打家劫舍）
+int houseRobberLinear(vector<int>& w, int start, int end) {
+    int n = end - start + 1;
+    if (n == 0) return 0;
+    if (n == 1) return w[start];
+
+    int prev2 = 0;      // dp[i-2]
+    int prev1 = w[start];  // dp[i-1]
+
+    for (int i = start + 1; i <= end; i++) {
+        int curr = max(prev1, prev2 + w[i]);
+        prev2 = prev1;
+        prev1 = curr;
+    }
+
+    return prev1;
+}
+
+// 环形房间问题主函数
+int houseRobberCircular(vector<int>& w) {
+    int n = w.size();
+    if (n == 0) return 0;
+    if (n == 1) return w[0];
+    if (n == 2) return max(w[0], w[1]);
+
+    // 情况1：不选第1个房间，考虑2~n
+    int case1 = houseRobberLinear(w, 1, n - 1);
+
+    // 情况2：不选第n个房间，考虑1~n-1
+    int case2 = houseRobberLinear(w, 0, n - 2);
+
+    return max(case1, case2);
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 环形拆成两个线性问题：不选第1个、不选第n个
+    \item 线性DP：dp[i]表示前i个房间的最大容量
+    \item 比较"不选i"和"选i"
+    \item 取两种情况的最大值
+\end{enumerate}
+

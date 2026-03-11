@@ -1,0 +1,40 @@
+\section*{5. 归并排序}
+
+给定数组A，使用归并排序算法对其进行升序排序，要求展示分治的"分解$\to$求解$\to$合并"完整过程。
+
+\begin{itemize}
+    \item \textbf{分解}：将数组按索引二分拆分为两个规模相等的子数组，重复拆分直至子数组长度为1
+    \item \textbf{基准情况}：子数组长度为1时本身已有序，直接作为子问题的解
+    \item \textbf{合并}：对两个有序子数组用双指针法遍历，依次选取较小元素放入临时数组，合并为一个有序数组
+    \item \textbf{递归结构}：先递归排序左半，再递归排序右半，最后合并左右
+    \item \textbf{时间复杂度}：分解O(1)，合并O(n)，递归树深度logn，总计O(nlogn)
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+void merge(vector<int>& A, int low, int mid, int high) {
+    vector<int> L(A.begin() + low, A.begin() + mid + 1);
+    vector<int> R(A.begin() + mid + 1, A.begin() + high + 1);
+    int i = 0, j = 0, k = low;
+    while (i < L.size() && j < R.size()) {
+        if (L[i] <= R[j]) {
+            A[k++] = L[i++];
+        } else {
+            A[k++] = R[j++];}}
+    while (i < L.size()) A[k++] = L[i++];
+    while (j < R.size()) A[k++] = R[j++];}
+void mergeSort(vector<int>& A, int low, int high) {
+    if (low < high) {
+        int mid = (low + high) / 2;
+        mergeSort(A, low, mid);
+        mergeSort(A, mid + 1, high);
+        merge(A, low, mid, high);}}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 把数组从中间分成两半
+    \item 对左半部分递归调用归并排序
+    \item 对右半部分递归调用归并排序
+    \item 合并左右两个有序部分：用两个指针分别指向左右部分的开头，每次选较小的放入原数组
+    \item 如果左边或右边还有剩余元素，直接全部复制过去
+    \item 重复上述步骤直到数组完全有序
+\end{enumerate}

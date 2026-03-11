@@ -1,0 +1,51 @@
+\section*{2. 数字加减乘号最大结果}
+
+给定N个1-9的数字$v_1, v_2, \ldots, v_n$，不改变数字相对位置，在相邻数字间加入K个乘号和$N-K-1$个加号（每位置必加一个符号），括号可任意添加，使最终结果最大。
+
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[i][k]$表示前$i$个数字用$k$个乘号的最大结果
+    \item \textbf{转移方程}：$$dp[i][k] = \max_{k \le j < i} \{dp[j][k-1] \times (sum[i] - sum[j])\}$$其中$sum[i]$为前$i$个数字的和
+    \item \textbf{边界条件}：$dp[i][0] = sum[i]$（0个乘号即全为加号）
+    \item \textbf{计算顺序}：$k$从$1$到$K$，$i$从$k+1$到$n$
+    \item \textbf{时间复杂度}：$O(K \cdot n^2)$
+\end{itemize}
+
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+int maxResultWithOperators(vector<int>& v, int K) {
+    int n = v.size();
+
+    // 预处理前缀和
+    vector<int> sum(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        sum[i] = sum[i-1] + v[i-1];
+    }
+
+    // dp[i][k]: 前i个数字用k个乘号的最大结果
+    vector<vector<long long>> dp(n + 1, vector<long long>(K + 1, 0));
+
+    // 初始化：k=0时全为加号
+    for (int i = 1; i <= n; i++) {
+        dp[i][0] = sum[i];
+    }
+
+    // 填充DP表
+    for (int k = 1; k <= K; k++) {
+        for (int i = k + 1; i <= n; i++) {
+            for (int j = k; j < i; j++) {
+                long long current = dp[j][k-1] * (sum[i] - sum[j]);
+                dp[i][k] = max(dp[i][k], current);
+            }
+        }
+    }
+
+    return dp[n][K];
+}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 先算前缀和数组，方便快速求任意连续一段数字的和
+    \item 建二维表，行表示数字个数，列表示乘号个数
+    \item 枚举最后一个乘号位置，把结果分为"前面那段的k-1个乘号的最大值"乘以"后面那段连续数字的和"
+    \item 表格右下角即为最终答案
+\end{enumerate}

@@ -1,0 +1,60 @@
+\section*{10. 单源最短路径问题 (Dijkstra算法)}
+
+给定带权有向图 $G=(V, E)$，每条边权值 $\ge 0$，给定源点 $v_0$，求 $v_0$ 到其他所有顶点的最短路径长度及路径。
+
+\begin{itemize}
+    \item \textbf{贪心策略}：维护已确定最短路径的顶点集合 $S$ 和未确定的集合 $V-S$，每次从 $V-S$ 中选择距离源点最近的顶点 $u$ 加入 $S$，然后松弛 $u$ 的所有邻接边
+    \item \textbf{松弛操作 (Relaxation)}：若 $dist[v] > dist[u] + W(u, v)$，则更新 $dist[v] = dist[u] + W(u, v)$
+    \item \textbf{时间复杂度}：$O(V^2)$（简单实现）或 $O((V+E) \log V)$（使用优先队列）
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+const int INF = 1e9;
+void dijkstra(int n, int src,
+              vector<vector<pair<int, int>>>& adj) {
+    vector<int> dist(n, INF);
+    vector<int> parent(n, -1);
+    vector<bool> visited(n, false);
+    dist[src] = 0;
+    for (int i = 0; i < n; i++) {
+        int u = -1, minDist = INF;
+        for (int j = 0; j < n; j++) {
+            if (!visited[j] && dist[j] < minDist) {
+                u = j; minDist = dist[j]; }
+        }
+        if (u == -1) break;
+        visited[u] = true;
+        for (auto& edge : adj[u]) {
+            int v = edge.first, weight = edge.second;
+            if (!visited[v] && dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+                parent[v] = u;
+            }
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        cout << "dist[" << i << "] = " << dist[i] << endl;
+    }
+}
+\end{lstlisting}
+
+\textbf{算法步骤：}
+\begin{enumerate}
+    \item 初始化：$dist[v_0] = 0$，$dist[v] = \infty$（$v \ne v_0$），$S = \emptyset$
+    \item 重复以下步骤，直到 $S$ 包含所有顶点或无法继续：
+    \begin{itemize}
+        \item 从 $V-S$ 中选择 $dist[u]$ 最小的顶点 $u$
+        \item 将 $u$ 加入 $S$
+        \item 对 $u$ 的每个邻接顶点 $v \in V-S$，执行松弛操作：
+        \[ \text{若 } dist[v] > dist[u] + W(u, v)，\text{ 则 } dist[v] = dist[u] + W(u, v), \ parent[v] = u \]
+    \end{itemize}
+    \item 返回距离数组 $dist[]$ 和前驱数组 $parent[]$
+\end{enumerate}
+
+\textbf{路径还原：} 通过 $parent[]$ 数组反向回溯可得到最短路径。例如，$parent[4]=3, parent[3]=2, parent[2]=0$，则源点到顶点4的路径为 $0 \to 2 \to 3 \to 4$。
+
+\textbf{正确性证明：}
+\begin{itemize}
+    \item \textbf{最优子结构}：若 $P(s, d)$ 是 $s$ 到 $d$ 的最短路径，则 $P$ 的子路径 $P(u, v)$ 也是 $u$ 到 $v$ 的最短路径
+    \item \textbf{贪心选择性}：设 $A$ 是已确定最短路径的顶点集，$B$ 是未确定的。若 $dist[u] + W(u, v)$ 对所有 $u \in A, v \in B$ 最小，则 $P + \{(u, v)\}$ 是 $s$ 到 $v$ 的最短路径
+\end{itemize}

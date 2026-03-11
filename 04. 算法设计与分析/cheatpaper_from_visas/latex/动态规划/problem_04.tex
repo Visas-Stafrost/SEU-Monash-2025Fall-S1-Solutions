@@ -1,0 +1,45 @@
+\section*{4. 树的节点着色（最大化黑色节点数）}
+
+对一棵以r为根的树进行节点着色，每个节点可着黑色或白色。约束：相邻节点不能着相同黑色（但可同白）。求使树中黑色节点数最多的着色方案。
+
+\begin{itemize}
+    \item \textbf{状态定义}：$dp[u][0]$表示节点u着白色时子树最大黑色节点数，$dp[u][1]$表示节点u着黑色时子树最大黑色节点数
+    \item \textbf{转移方程}：$dp[u][1] = 1 + \sum_{v \in children(u)} dp[v][0]$，$dp[u][0] = \sum_{v \in children(u)} \max(dp[v][0], dp[v][1])$
+    \item \textbf{遍历顺序}：后序遍历（先子节点后父节点）
+    \item \textbf{最终结果}：$\max(dp[r][0], dp[r][1])$
+\end{itemize}
+
+\begin{lstlisting}[language=C++, style=cppstyle]
+struct TreeNode {
+    vector<TreeNode*> children;
+};
+
+pair<int, int> treeColoring(TreeNode* u) {
+    // 返回 {着白时的最大黑数, 着黑时的最大黑数}
+    int white = 0, black = 1;  // 初始化：无子节点时
+
+    for (TreeNode* v : u->children) {
+        auto [w, b] = treeColoring(v);
+
+        // u着黑：子节点必须着白
+        black += w;
+
+        // u着白：子节点可选最大
+        white += max(w, b);
+    }
+
+    return {white, black};
+}
+
+int maxBlackNodes(TreeNode* root) {
+    auto [white, black] = treeColoring(root);
+    return max(white, black);
+}
+\end{lstlisting}
+
+\begin{enumerate}
+    \item 从根节点开始后序遍历（先处理完所有孩子，再处理自己）
+    \item 对每个节点算两个值：染白时子树最多几个黑节点、染黑时子树最多几个黑节点
+    \item 若染黑，所有孩子只能染白；若染白，每个孩子自由选择
+    \item 根节点取两者较大值
+\end{enumerate}

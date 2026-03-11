@@ -1,0 +1,172 @@
+% 算法题LaTeX模板 - 双栏紧凑排版
+% 编译方式: xelatex main.tex (推荐) 或 pdflatex main.tex
+
+\documentclass[10pt, a4paper]{article}
+
+% ============ 基础包 ============
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ctex}           % 中文支持
+\usepackage{geometry}       % 页面设置
+\usepackage{multicol}       % 多栏布局
+\usepackage{enumitem}       % 列表设置
+\usepackage{listings}       % 代码高亮
+\usepackage{xcolor}         % 颜色
+\usepackage{titlesec}       % 标题间距
+\usepackage{parskip}        % 段落间距
+\usepackage{amsmath}        % 数学公式
+\usepackage{graphicx}       % 图片
+
+% ============ 极限页面设置 ============
+\geometry{
+    left=0.5cm,
+    right=0.5cm,
+    top=0.5cm,
+    bottom=0.5cm,
+    nohead,    % 无页眉
+    nofoot     % 无页脚
+}
+
+% ============ 代码样式设置 ============
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codegreen}{RGB}{0,150,0}
+\definecolor{codeblue}{RGB}{0,0,200}
+\definecolor{codered}{RGB}{200,0,0}
+
+\lstset{
+    basicstyle=\ttfamily\scriptsize,     % 极小字号
+    breaklines=true,                     % 自动换行
+    breakatwhitespace=false,
+    breakindent=0pt,
+    frame=single,                        % 单线框
+    backgroundcolor=\color{codebg},      % 背景色
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codered},
+    showstringspaces=false,
+    captionpos=b,
+    aboveskip=2pt,                       % 上方间距
+    belowskip=2pt,                       % 下方间距
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+    framesep=3pt,
+    framerule=0.5pt,
+    tabsize=4,
+    numbers=none,                        % 不显示行号
+}
+
+% ============ C++ 代码设置 ============
+\lstdefinestyle{cppstyle}{
+    language=C++,
+    morekeywords={include, define, ifdef, ifndef, endif, using, namespace, std, vector, string, map, set, unordered_map, unordered_set},
+}
+
+% ============ 紧凑标题设置 ============
+\titlespacing*{\section}{0pt}{4pt}{2pt}  % 左边距, 上间距, 下间距
+\titlespacing*{\subsection}{0pt}{2pt}{1pt}
+\titlespacing*{\subsubsection}{0pt}{1pt}{0pt}
+
+% 设置标题字号
+\setcounter{secnumdepth}{0}  % 不显示编号
+\setlength{\columnsep}{0.3cm}  % 栏间距
+
+% 自定义section格式
+\titleformat{\section}
+  {\normalfont\bfseries\large}{\thesection}{0pt}{}
+
+\titleformat{\subsection}
+  {\normalfont\bfseries\normalsize}{}{0pt}{}
+
+% ============ 全局样式调整 ============
+\raggedcolumns  % 栏内容不拉伸对齐，保持自然紧凑
+\setlength{\parindent}{0pt}      % 无首行缩进
+\setlength{\parskip}{3pt}        % 段落间距
+\setitemize{itemsep=1pt,topsep=1pt,leftmargin=1.2em}  % 列表紧凑
+
+\begin{document}
+
+% ============ 标题页 ============
+\begin{center}
+    \huge\textbf{分治法}
+\end{center}
+
+\vspace{0.3cm}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{0.3cm}
+
+% ============ 目录页 ============
+\begin{multicols*}{2}
+\input{catalog_content.tex}
+\end{multicols*}
+
+\vspace{0.5cm}
+
+% ============ 双栏开始 ============
+\begin{multicols*}{2}
+
+% ========== 题目内容 ==========
+\input{tex/problem_01.tex}
+\par\columnbreak
+\input{tex/problem_02.tex}
+\par\columnbreak
+\input{tex/problem_03.tex}
+\par\columnbreak
+\input{tex/problem_04.tex}
+\par\columnbreak
+\input{tex/problem_05.tex}
+\par\columnbreak
+\input{tex/problem_06.tex}
+\par\columnbreak
+\input{tex/problem_07.tex}
+\par\columnbreak
+\input{tex/problem_08.tex}
+\par\columnbreak
+\input{tex/problem_09.tex}
+\par\columnbreak
+\input{tex/problem_10.tex}
+\par\columnbreak
+\input{tex/problem_11.tex}
+\par\columnbreak
+\input{tex/problem_12.tex}
+\par\columnbreak
+\input{tex/problem_13.tex}
+\par\columnbreak
+\input{tex/problem_14.tex}
+\par\columnbreak
+\input{tex/problem_15.tex}
+\par\columnbreak
+\input{tex/problem_16.tex}
+\par\columnbreak
+\input{tex/problem_17.tex}
+\par\columnbreak
+
+% ========== 分治算法方法论总结 ==========
+{\large\textbf{分治算法解题的"固有方法论"}}
+\vspace{0.2cm}
+
+分治算法（Divide and Conquer）的核心思想是"\textbf{大事化小，小事化了，最后合并}"。在解决此类题目时，可以遵循标准的\textbf{"三步走"}策略：
+
+\textbf{1. 分解 (Divide)}：将原问题划分成若干个规模较小、相互独立、与原问题形式相同的子问题。\\
+\textcolor{gray}{$\bullet$ 代码体现：通常是寻找中点 \texttt{mid}，将数组下标范围划分为 \texttt{[left, mid]} 和 \texttt{[mid+1, right]}。}
+
+\textbf{2. 解决 (Conquer)}：递归地求解这些子问题。\\
+\textcolor{gray}{$\bullet$ 基准情况 (Base Case)：必须定义递归结束的条件（例如数组长度为1或2时），直接求解。}\\
+\textcolor{gray}{$\bullet$ 代码体现：递归调用函数本身，如 \texttt{solve(left, mid)}。}
+
+\textbf{3. 合并 (Combine)}：将子问题的解合并，得到原问题的解。这是分治算法中最关键、最难设计的一步。\\
+\textcolor{gray}{$\bullet$ 代码体现：在递归返回后，编写逻辑将左右两边的结果整合成一个结果。}
+
+\vspace{0.3cm}
+\textbf{复杂度分析套路：}
+
+通常使用主定理（Master Theorem）或递归树。形式为 $T(n) = aT(n/b) + f(n)$。
+
+\textcolor{gray}{$\bullet$ $a$：子问题个数}\\
+\textcolor{gray}{$\bullet$ $b$：子问题缩小的倍数}\\
+\textcolor{gray}{$\bullet$ $f(n)$：合并步骤的代价}
+
+% ========== 题目内容结束 ==========
+
+\end{multicols*}
+
+\end{document}

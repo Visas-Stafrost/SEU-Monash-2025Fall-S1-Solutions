@@ -1,0 +1,78 @@
+\section*{19. 二维矩阵的最大子矩阵和}
+
+给定$m \times n$的二维整数矩阵$A$（含正、负、零），找到和最大的子矩阵，并输出其和。
+
+
+
+\textbf{二维转一维}：枚举所有可能的行范围，压缩列后用Kadane算法
+\begin{itemize}
+    \item \textbf{枚举行范围}：遍历所有上边界$top$和下边界$bottom$
+    \item \textbf{压缩列}：对每个行范围$[top, bottom]$，计算每列的和得到$colSum[]$
+    \item \textbf{Kadane算法}：对$colSum[]$求最大子数组
+    \item \textbf{时间复杂度}：$O(m^2 \cdot n)$
+\end{itemize}
+\begin{lstlisting}[language=C++, style=cppstyle]
+// Kadane算法（返回最大子数组和）
+int kadane(vector<int>& arr) {
+    int maxSum = arr[0];
+    int currSum = arr[0];
+
+    for (int i = 1; i < arr.size(); i++) {
+        currSum = max(arr[i], currSum + arr[i]);
+        maxSum = max(maxSum, currSum);
+    }
+
+    return maxSum;
+}
+
+// 最大子矩阵和
+int maxSubmatrixSum(vector<vector<int>>& A) {
+    int m = A.size();
+    if (m == 0) return 0;
+    int n = A[0].size();
+
+    // 前缀和预处理
+    vector<vector<int>> prefix(m + 1, vector<int>(n, 0));
+    for (int i = 1; i <= m; i++) {
+        for (int j = 0; j < n; j++) {
+            prefix[i][j] = prefix[i-1][j] + A[i-1][j];
+        }
+    }
+
+    int maxSum = INT_MIN;
+
+    // 枚举所有行范围
+    for (int top = 0; top < m; top++) {
+        for (int bottom = top; bottom < m; bottom++) {
+            // 压缩列：计算colSum[]
+            vector<int> colSum(n);
+            for (int j = 0; j < n; j++) {
+                colSum[j] = prefix[bottom+1][j] - prefix[top][j];
+            }
+
+            // Kadane算法求最大子数组
+            int currMax = kadane(colSum);
+            maxSum = max(maxSum, currMax);
+        }
+    }
+
+    return maxSum;
+}
+\end{lstlisting}
+
+
+\begin{enumerate}
+    \item 先算前缀和，方便O(1)求任意行范围内某列的和
+    \item 枚举所有可能的行边界
+    \item 对每个行范围，压缩成一维数组
+    \item 用Kadane算法求最大子数组
+\end{enumerate}
+
+
+\subsection*{复杂度分析}
+\begin{itemize}
+    \item 前缀和预处理：$O(mn)$
+    \item 枚举行范围：$O(m^2)$
+    \item 每次Kadane：$O(n)$
+    \item \textbf{总时间复杂度}：$O(m^2 \cdot n)$（若$m \approx n$，则为$O(n^3)$）
+\end{itemize}
